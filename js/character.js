@@ -102,10 +102,7 @@ export class PlayerCharacter {
  }
  triggerAction(kind) {
   const action=this.findAction(kind);
-  if(!action || !this.mixer){
-   if(!this.model){this.proceduralAction=kind;this.proceduralActionTime=kind==="shoot"?.65:.72;this.weapon.visible=kind==="shoot";return true;}
-   return false;
-  }
+  if(!action || !this.mixer){this.proceduralAction=kind;this.proceduralActionTime=kind==="shoot"?.65:.72;this.weapon.visible=kind==="shoot";return true;}
   if(this.activeAction && this.activeAction!==action) this.activeAction.fadeOut(.1);
   action.reset().setLoop(THREE.LoopOnce,1); action.clampWhenFinished=true; action.fadeIn(.1).play();
   this.activeAction=action; this.overrideName=kind; this.overrideRemaining=Math.max(.35,action.getClip().duration);
@@ -114,6 +111,7 @@ export class PlayerCharacter {
  update(dt,speed=0,air=false,crouching=false) {
   if(this.mixer) {
    this.mixer.update(dt);
+   if(this.proceduralActionTime>0){this.proceduralActionTime-=dt;if(this.model){this.model.rotation.x=this.proceduralAction==="shoot"?-.035:this.proceduralAction==="punch"?-.02:0;}if(this.proceduralActionTime<=0){this.proceduralAction=null;this.weapon.visible=false;if(this.model)this.model.rotation.x=0;}}
    if(this.overrideRemaining>0) {
     this.overrideRemaining-=dt;
     if(this.overrideRemaining<=0){if(this.activeAction)this.activeAction.fadeOut(.12);this.activeAction=null;this.overrideName=null;}
