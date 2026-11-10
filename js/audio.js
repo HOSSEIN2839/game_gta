@@ -5,7 +5,7 @@ export class GameAudio{
  async loadVoice(key,file){await this.init();this.voices.set(String(key),await this.ctx.decodeAudioData(await file.arrayBuffer()));}
  play(id,volume=1){if(!this.enabled||!this.ctx||!this.buffers.has(id))return;const s=this.ctx.createBufferSource(),g=this.ctx.createGain();s.buffer=this.buffers.get(id);g.gain.value=volume;s.connect(g);g.connect(this.master);s.start();}
  voice(key){if(!this.enabled||!this.ctx||!this.voices.has(String(key)))return false;const s=this.ctx.createBufferSource();s.buffer=this.voices.get(String(key));s.connect(this.master);s.start();return true;}
- setEngine(active,throttle=0){if(!this.ctx)return;this.engine.frequency.setTargetAtTime(42+Math.abs(throttle)*105,this.ctx.currentTime,.09);this.engineGain.gain.setTargetAtTime(active?.018+Math.abs(throttle)*.065:0,this.ctx.currentTime,.12);}
- footstep(running=false){if(!this.enabled||!this.ctx||this.ctx.currentTime-this.lastStep<(running?0.27:0.43))return;this.lastStep=this.ctx.currentTime;this.play("footstep",running?.8:.55);}
- setEnabled(on){this.enabled=on;if(this.master)this.master.gain.setTargetAtTime(on?.72:0,this.ctx.currentTime,.04);}
+ setEngine(active,throttle=0){if(!this.ctx)return;this.engine.frequency.setTargetAtTime(42+Math.abs(throttle)*105,this.ctx.currentTime,.09);this.engineGain.gain.setTargetAtTime(active ? .018+Math.abs(throttle)*.065 : 0,this.ctx.currentTime,.12);}
+ footstep(running=false){if(!this.enabled||!this.ctx||this.ctx.currentTime-this.lastStep<(running?0.27:0.43))return;this.lastStep=this.ctx.currentTime;this.play("footstep",running ? .8 : .55);}
+ setEnabled(on){this.enabled=on;if(this.master)this.master.gain.setTargetAtTime(on ? .72 : 0,this.ctx.currentTime,.04);}
 }
