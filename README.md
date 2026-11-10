@@ -10,6 +10,11 @@ Single-player third-person 3D open-world browser game inspired by the classic GT
 
 Three.js currently loads from jsDelivr, so internet access is required. A local vendor copy will be added for offline hosting.
 
+## Player character
+- After starting, use the Player Model panel to load the publisher-hosted CC0 sample (internet required), or select your own rigged .glb file.
+- Embedded animation clips are detected and mapped by their names. The sample includes Idle, Walk, Run, Death, Hit, Attack and Special; it does not include dedicated crouch, jump, firearm or vehicle-entry clips.
+- The sample is fetched from Gobkit at runtime and is not bundled in this repository.
+
 ## Audio and player voice
 - Use the Sound button to mute/unmute.
 - After starting, load recordings in the Player Voice panel for keys 1–4. Files are loaded locally in the browser session and are not uploaded to GitHub.
