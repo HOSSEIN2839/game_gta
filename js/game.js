@@ -33,41 +33,43 @@ const clamp=THREE.MathUtils.clamp,clock=new THREE.Clock(),move=new THREE.Vector3
 function toast(t){$("#toast").textContent=t;$("#toast").style.opacity=1;toastTime=2}
 function nearCar(){return player.position.distanceTo(car.position)<4.5}
 function collidesAt(x,z){return buildingColliders.some(b=>x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ)}
+function carCollidesAt(x,z){const radius=2.15;return buildingColliders.some(b=>x>b.minX-radius&&x<b.maxX+radius&&z>b.minZ-radius&&z<b.maxZ+radius)}
 function toggleCar(){
  if(transitioning)return;
  if(!inCar&&nearCar()){
   transitioning=true;const hasEntry=character.triggerAction("enter");toast("در حال سوارشدن...");voiceLine("سوار خودرو شدم");
-  setTimeout(()=>{inCar=true;player.visible=false;transitioning=false;toast("سوار خودرو شدی");tone(180,.18,"square",.08);$("#mode").textContent="DRIVING";},hasEntry?650:0);
+  setTimeout(()=>{inCar=true;player.visible=false;transitioning=false;toast("سوار خودرو شدی");tone(180,.18,"square",.08);$("#mode").textContent="رانندگی";},hasEntry?650:0);
  }else if(inCar){
   transitioning=true;inCar=false;player.position.copy(car.position).add(new THREE.Vector3(2.5,0,0));player.visible=true;const hasExit=character.triggerAction("exit");toast("در حال پیاده‌شدن...");voiceLine("از خودرو پیاده شدم");
-  setTimeout(()=>{transitioning=false;toast("از خودرو پیاده شدی");tone(260,.12,"triangle",.08);$("#mode").textContent="ON FOOT";},hasExit?650:0);
+  setTimeout(()=>{transitioning=false;toast("از خودرو پیاده شدی");tone(260,.12,"triangle",.08);$("#mode").textContent="پیاده";},hasExit?650:0);
  }
 }
 $("#helpToggle").addEventListener("click",()=>{const panel=$("#helpDialog"),open=panel.classList.toggle("hidden")===false;$("#helpToggle").setAttribute("aria-expanded",String(open));});$("#helpClose").addEventListener("click",()=>{$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");});document.addEventListener("keydown",e=>{if(e.code==="Escape"&&!$("#helpDialog").classList.contains("hidden")){$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");}});
-$("#startBtn").onclick=()=>{begun=true;audio.init();$("#start").classList.add("hidden");$("#hud").classList.remove("hidden");$("#helpToggle").classList.remove("hidden");$("#audioToggle").classList.remove("hidden");$("#voicePanel").classList.remove("hidden");$("#modelPanel").classList.remove("hidden");renderer.domElement.requestPointerLock()};
+$("#startBtn").onclick=()=>{begun=true;audio.init().catch(()=>toast("صدای مرورگر در دسترس نیست؛ تنظیمات صوتی مرورگر را بررسی کن"));$("#start").classList.add("hidden");$("#hud").classList.remove("hidden");$("#helpToggle").classList.remove("hidden");$("#audioToggle").classList.remove("hidden");$("#voicePanel").classList.remove("hidden");$("#modelPanel").classList.remove("hidden");renderer.domElement.requestPointerLock()};
 renderer.domElement.onclick=()=>{if(begun&&document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock()};
 document.addEventListener("mousemove",e=>{if(!begun||document.pointerLockElement!==renderer.domElement)return;yaw-=e.movementX*.0025;pitch=clamp(pitch-e.movementY*.0018,-.12,.85)});
 document.addEventListener("keydown",e=>{keys.add(e.code);if(e.code==="Space"){e.preventDefault();if(!e.repeat)jumpQueued=true;}if(e.code==="KeyE"&&!e.repeat&&begun)toggleCar()});
 document.addEventListener("keyup",e=>keys.delete(e.code));
+window.addEventListener("blur",()=>keys.clear());
 document.addEventListener("keydown",e=>{
  if(e.repeat||!begun||inCar)return;
- if(e.code==="KeyC"){crouching=!crouching;const ok=character.triggerAction("crouch");toast(crouching?(ok?"Crouching":"No crouch clip in this model"):"Standing");}
- if(e.code==="KeyF"){toast(character.triggerAction("punch")?"Punch animation":"No punch clip in this model");}
- if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"Weapon animation":"No firearm clip; weapon gameplay is not installed");}
- if(e.code==="KeyT"){toast(character.triggerAction("interact")?"Character activity":"No activity clip in this model");}
+ if(e.code==="KeyC"){crouching=!crouching;const ok=character.triggerAction("crouch");toast(crouching?(ok?"در حال خم‌شدن":"این مدل انیمیشن خم‌شدن ندارد"):"ایستاده");}
+ if(e.code==="KeyF"){toast(character.triggerAction("punch")?"انیمیشن مشت اجرا شد":"این مدل انیمیشن مشت ندارد");}
+ if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"انیمیشن سلاح اجرا شد":"کلیپ سلاح وجود ندارد؛ گیم‌پلی سلاح فعال نیست");}
+ if(e.code==="KeyT"){toast(character.triggerAction("interact")?"فعالیت شخصیت اجرا شد":"این مدل انیمیشن فعالیت ندارد");}
 });
-$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("شخصیت نمونه بارگذاری شد");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("بارگذاری شخصیت نمونه ناموفق بود");}});
+$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="در حال دریافت شخصیت نمونه مجاز...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="شخصیت بارگذاری شد · "+names.length+" کلیپ: "+names.join(", ");toast("شخصیت نمونه بارگذاری شد");}catch(err){status.textContent="شخصیت نمونه در دسترس نیست: "+err.message;toast("بارگذاری شخصیت نمونه ناموفق بود");}});
 $("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  const status=$("#modelStatus");status.textContent="Loading character...";
- try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" clips: "+names.join(", "):"no embedded animations");toast("مدل شخصیت بارگذاری شد");}
- catch(err){status.textContent="Load failed: "+err.message;toast("بارگذاری مدل ناموفق بود");}
+ try{const names=await character.loadModelFile(file);status.textContent="مدل بارگذاری شد · "+(names.length?names.length+" کلیپ: "+names.join(", "):"بدون انیمیشن داخلی");toast("مدل شخصیت بارگذاری شد");}
+ catch(err){status.textContent="بارگذاری ناموفق: "+err.message;toast("بارگذاری مدل ناموفق بود");}
 });
 $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
 document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("صدای کلید "+input.dataset.voice+" بارگذاری شد");}catch(err){toast("بارگذاری فایل صدا ناموفق بود");}}));
 document.addEventListener("keydown",e=>{if(!e.repeat&&["Digit1","Digit2","Digit3","Digit4"].includes(e.code))audio.voice(e.code.slice(-1));});
 renderer.domElement.addEventListener("wheel",e=>dist=clamp(dist+Math.sign(e.deltaY)*.8,3.2,14),{passive:true});
-function update(dt){if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyA")?1:0)-(keys.has("KeyD")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);car.position.addScaledVector(f,t*dt*15);car.position.x=clamp(car.position.x,-105,105);car.position.z=clamp(car.position.z,-105,105);return}
+function update(dt){if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyA")?1:0)-(keys.has("KeyD")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);const nx=clamp(car.position.x+f.x*t*dt*15,-105,105),nz=clamp(car.position.z+f.z*t*dt*15,-105,105);if(!carCollidesAt(nx,nz))car.position.set(nx,0,nz);return}
 const f=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),r=new THREE.Vector3(f.z,0,-f.x);move.set(0,0,0);if(keys.has("KeyW"))move.add(f);if(keys.has("KeyS"))move.sub(f);if(keys.has("KeyD"))move.add(r);if(keys.has("KeyA"))move.sub(r);
 if(move.lengthSq()){move.normalize();const step=(crouching?2.2:(keys.has("ShiftLeft")?10:5.3))*dt, nx=player.position.x+move.x*step,nz=player.position.z+move.z*step;if(!collidesAt(nx,player.position.z))player.position.x=nx;if(!collidesAt(player.position.x,nz))player.position.z=nz;player.rotation.y=Math.atan2(move.x,move.z);}
 if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-108,108);player.position.z=clamp(player.position.z,-108,108);character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching)}
