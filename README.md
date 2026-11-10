@@ -20,13 +20,23 @@ Three.js currently loads from jsDelivr, so internet access is required. A local 
 - After starting, load recordings in the Player Voice panel for keys 1–4. Files are loaded locally in the browser session and are not uploaded to GitHub.
 - Licensed sample files can be loaded from `assets/audio/`; see `docs/ASSET_SOURCES.md`. Production-quality sound packs still need to be downloaded, licence-checked and added before calling the audio final.
 
+## In-game guide
+- Press **راهنمای بازی ؟** after starting to open the control guide; close it with × or Esc.
+- The guide documents current keyboard actions, voice slots, model loading and incomplete features.
+- Update `docs/CONTROLS_FA.md` and the in-game guide whenever controls or gameplay actions change.
+
 ## Controls
-- W/A/S/D: move and drive
+- W/A/S/D: move; while driving, accelerate/reverse/steer
 - Shift: sprint
 - Space: jump
-- Mouse: rotate camera
-- Mouse wheel: zoom
-- E: enter/exit nearby car
-- Esc: release mouse
+- C: toggle crouch state (animation depends on the loaded GLB)
+- F: request punch animation only; combat is not implemented
+- R: request weapon animation only; shooting is not implemented
+- T: request a special activity animation if the GLB contains one
+- E: enter/exit a nearby car
+- Mouse: rotate camera; mouse wheel: zoom
+- Esc: release pointer lock; click the game view to recapture it
+- 1–4: play recordings loaded in the Player Voice panel
+- Sound button: mute/unmute game audio
 
 This is the first playable foundation with procedural placeholder geometry, not a finished game. See docs/ROADMAP.md.
