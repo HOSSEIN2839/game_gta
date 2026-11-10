@@ -16,6 +16,8 @@ Three.js currently loads from jsDelivr, so internet access is required. A local 
 - The sample is fetched from Gobkit at runtime and is not bundled in this repository.
 
 ## Audio and player voice
+- Basic character event lines use Persian browser speech synthesis (`fa-IR`) when available. The actual voice depends on voices installed in the browser/operating system; a Persian voice is not guaranteed on every computer.
+- Custom recordings remain optional and are loaded locally for keys 1–4.
 - Use the Sound button to mute/unmute.
 - After starting, load recordings in the Player Voice panel for keys 1–4. Files are loaded locally in the browser session and are not uploaded to GitHub.
 - Licensed sample files can be loaded from `assets/audio/`; see `docs/ASSET_SOURCES.md`. Production-quality sound packs still need to be downloaded, licence-checked and added before calling the audio final.
