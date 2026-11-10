@@ -132,7 +132,7 @@ export class PlayerCharacter {
   this.activeAction=action; this.overrideName=kind; this.overrideRemaining=Math.max(.35,action.getClip().duration);
   return true;
  }
- update(dt,speed=0,air=false,crouching=false) {
+ update(dt,speed=0,air=false,crouching=false,sitting=false) {
   if(this.mixer) {
    this.mixer.update(dt);
    if(this.proceduralActionTime>0){this.proceduralActionTime-=dt;if(this.model){this.model.rotation.x=this.proceduralAction==="shoot"?-.035:this.proceduralAction==="punch"?-.02:0;}if(this.proceduralActionTime<=0){this.proceduralAction=null;this.weapon.visible=false;if(this.model)this.model.rotation.x=0;}}
@@ -141,8 +141,8 @@ export class PlayerCharacter {
     if(this.overrideRemaining<=0){if(this.activeAction)this.activeAction.fadeOut(.12);this.activeAction=null;this.overrideName=null;}
    }
    if(this.overrideRemaining<=0) {
-    const desired=air?"jump":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
-    if(!this.playAction(desired)) {if(this.activeAction){this.activeAction.fadeOut(.12);this.activeAction=null;}this.animateModelBones(dt,speed,crouching,air);}
+    const desired=air?"jump":sitting?"sit":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
+    if(!this.playAction(desired)) {if(this.activeAction){this.activeAction.fadeOut(.12);this.activeAction=null;}this.animateModelBones(dt,speed,crouching,air,sitting);}
    }
    return;
   }
@@ -159,8 +159,9 @@ export class PlayerCharacter {
   else {const idle=Math.sin(this.phase)*.025;this.leftArm.rotation.x=idle;this.rightArm.rotation.x=-idle;this.leftLeg.rotation.x=0;this.rightLeg.rotation.x=0;}
   if(air){this.leftLeg.rotation.x=-.35;this.rightLeg.rotation.x=.35;this.leftArm.rotation.x=-.8;this.rightArm.rotation.x=-.8;}
   if(crouching){this.procedural.scale.y=.78;this.procedural.position.y=-.35;}else{this.procedural.scale.y=1;this.procedural.position.y=0;}
+  if(sitting){this.leftLeg.rotation.x=-1.05;this.rightLeg.rotation.x=-1.05;this.procedural.position.y=-.32;}
  }
- animateModelBones(dt,speed,crouching,air) {
+ animateModelBones(dt,speed,crouching,air,sitting=false) {
   if(!this.model)return;
   this.modelPhase+=dt*(speed>7?12:speed>.1?8:2);
   const swing=speed>.1?Math.sin(this.modelPhase)*.48:Math.sin(this.modelPhase)*.025;
@@ -173,6 +174,7 @@ export class PlayerCharacter {
    else if(/right.*(arm|shoulder)/.test(n))bone.rotation.x+=swing*.65;
    if(crouching&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.35;
    if(air&&/(arm|shoulder)/.test(n))bone.rotation.x-=.35;
+   if(sitting&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.85;
    if(this.proceduralAction==="punch"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=1.25;
    if(this.proceduralAction==="shoot"&&/(arm|shoulder)/.test(n))bone.rotation.x-=.45;
    if(this.proceduralAction==="interact"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=.9;
