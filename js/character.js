@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createUniversalAnimationClips } from "./animation-library.js";
 
 const CLIP_MATCH = {
  idle: /idle|stand|breath/,
@@ -11,7 +12,10 @@ const CLIP_MATCH = {
  shoot: /shoot|fire|pistol|rifle|gun/,
  enter: /enter.?vehicle|enter.?car|vehicle.?enter|car.?enter/,
  exit: /exit.?vehicle|exit.?car|vehicle.?exit|car.?exit/,
- interact: /wave|talk|interact|phone|sit|emote/
+ interact: /wave|talk|interact|phone|emote/,
+ sit: /sit|sitting/,
+ hit: /hit|damage|hurt/,
+ death: /death|die|dead|fall.?down/
 };
 
 export class PlayerCharacter {
@@ -85,6 +89,7 @@ export class PlayerCharacter {
   this.mixer=null; this.actions={}; this.clips={}; this.activeAction=null; this.boneBases.clear();
   model.traverse(o=>{if(o.isBone)this.boneBases.set(o,{x:o.rotation.x,y:o.rotation.y,z:o.rotation.z});});
   if(gltf.animations?.length) this.attachAnimations(gltf.animations);
+  this.ensureUniversalAnimations();
   return Object.keys(this.clips);
  }
  attachAnimations(clips) {
@@ -97,10 +102,16 @@ export class PlayerCharacter {
   }
   this.playAction("idle");
  }
+ ensureUniversalAnimations() {
+  if(!this.model) return;
+  const missing=createUniversalAnimationClips(this.model).filter(clip=>!this.findAction(clip.name.replace(/^universal_/, "")));
+  if(missing.length) this.attachAnimations(missing);
+ }
  findAction(kind) {
   const pattern=CLIP_MATCH[kind]; if(!pattern) return null;
-  const key=Object.keys(this.actions).find(name=>pattern.test(name));
-  return key ? this.actions[key] : null;
+  const keys=Object.keys(this.actions).filter(name=>pattern.test(name));
+  keys.sort((a,b)=>Number(a.startsWith("universal_"))-Number(b.startsWith("universal_")));
+  return keys.length ? this.actions[keys[0]] : null;
  }
  playAction(kind) {
   if(!this.mixer) return false;
@@ -121,7 +132,7 @@ export class PlayerCharacter {
   this.activeAction=action; this.overrideName=kind; this.overrideRemaining=Math.max(.35,action.getClip().duration);
   return true;
  }
- update(dt,speed=0,air=false,crouching=false) {
+ update(dt,speed=0,air=false,crouching=false,sitting=false) {
   if(this.mixer) {
    this.mixer.update(dt);
    if(this.proceduralActionTime>0){this.proceduralActionTime-=dt;if(this.model){this.model.rotation.x=this.proceduralAction==="shoot"?-.035:this.proceduralAction==="punch"?-.02:0;}if(this.proceduralActionTime<=0){this.proceduralAction=null;this.weapon.visible=false;if(this.model)this.model.rotation.x=0;}}
@@ -130,8 +141,8 @@ export class PlayerCharacter {
     if(this.overrideRemaining<=0){if(this.activeAction)this.activeAction.fadeOut(.12);this.activeAction=null;this.overrideName=null;}
    }
    if(this.overrideRemaining<=0) {
-    const desired=air?"jump":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
-    if(!this.playAction(desired)) {if(this.activeAction){this.activeAction.fadeOut(.12);this.activeAction=null;}this.animateModelBones(dt,speed,crouching,air);}
+    const desired=air?"jump":sitting?"sit":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
+    if(!this.playAction(desired)) {if(this.activeAction){this.activeAction.fadeOut(.12);this.activeAction=null;}this.animateModelBones(dt,speed,crouching,air,sitting);}
    }
    return;
   }
@@ -148,8 +159,9 @@ export class PlayerCharacter {
   else {const idle=Math.sin(this.phase)*.025;this.leftArm.rotation.x=idle;this.rightArm.rotation.x=-idle;this.leftLeg.rotation.x=0;this.rightLeg.rotation.x=0;}
   if(air){this.leftLeg.rotation.x=-.35;this.rightLeg.rotation.x=.35;this.leftArm.rotation.x=-.8;this.rightArm.rotation.x=-.8;}
   if(crouching){this.procedural.scale.y=.78;this.procedural.position.y=-.35;}else{this.procedural.scale.y=1;this.procedural.position.y=0;}
+  if(sitting){this.leftLeg.rotation.x=-1.05;this.rightLeg.rotation.x=-1.05;this.procedural.position.y=-.32;}
  }
- animateModelBones(dt,speed,crouching,air) {
+ animateModelBones(dt,speed,crouching,air,sitting=false) {
   if(!this.model)return;
   this.modelPhase+=dt*(speed>7?12:speed>.1?8:2);
   const swing=speed>.1?Math.sin(this.modelPhase)*.48:Math.sin(this.modelPhase)*.025;
@@ -162,6 +174,7 @@ export class PlayerCharacter {
    else if(/right.*(arm|shoulder)/.test(n))bone.rotation.x+=swing*.65;
    if(crouching&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.35;
    if(air&&/(arm|shoulder)/.test(n))bone.rotation.x-=.35;
+   if(sitting&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.85;
    if(this.proceduralAction==="punch"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=1.25;
    if(this.proceduralAction==="shoot"&&/(arm|shoulder)/.test(n))bone.rotation.x-=.45;
    if(this.proceduralAction==="interact"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=.9;
