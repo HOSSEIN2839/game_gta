@@ -14,6 +14,11 @@ const [html, game, character, audio, animationLibrary, css, controls] = await Pr
 assert.match(html, /<html lang="fa" dir="rtl">/, "The game shell must be Persian and RTL");
 assert.match(html, /id="world"/, "The render root must exist");
 assert.match(html, /id="startBtn"/, "The start button must exist");
+assert.match(html, /class="overlay character-select-overlay"/, "Pre-game character selection must exist");
+for (const id of ["casual-female","formal-female","casual-male","suit-male","hoodie-male"]) assert.ok(html.includes('data-preset="'+id+'"'), "Missing preset option: "+id);
+assert.match(html, /id="characterStatus"/, "Character loading status must exist");
+assert.match(html, /id="modelFile"/, "Custom GLB upload must be available before starting");
+
 assert.match(html, /id="helpToggle"/, "The in-game guide button must exist");
 assert.match(html, /id="helpDialog"/, "The in-game guide dialog must exist");
 assert.match(html, /src="js\/game\.js"/, "The game module must be loaded");
@@ -24,6 +29,11 @@ for (const id of ["world", "startBtn", "helpToggle", "helpDialog", "audioToggle"
 }
 
 assert.match(game, /from "\.\/character\.js"/, "Character module import missing");
+assert.match(game, /characterPresets=/, "Preset character catalog must be present");
+assert.match(game, /chooseCharacter\("casual-female"\)/, "A default preset must be loaded before the game starts");
+assert.match(game, /assets\/characters\/CasualFemale\.glb/, "Local character asset path must be used");
+assert.match(game, /pointermove/, "Character preview must support rotation");
+
 assert.match(game, /from "\.\/audio\.js"/, "Audio module import missing");
 assert.match(game, /function carCollidesAt/, "Vehicle/building collision guard missing");
 assert.match(game, /window\.addEventListener\("blur",\(\)=>keys\.clear\(\)\)/, "Keys must reset when the window loses focus");

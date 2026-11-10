@@ -1,0 +1,73 @@
+name: Vendor approved character assets
+on:
+  push:
+    branches:
+      - feature/character-select-visual-upgrade
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Download and verify CC0 character models
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/characters
+          base="https://raw.githubusercontent.com/george11642/app-contest-sprint/main/video-starter/public/models/chars"
+          declare -A files=(
+            [CasualFemale.glb]=818ea386f265f5e22f87d599e865c586594f5739
+            [FormalFemale.glb]=bdbe46897185fc3b8d919c4453abc33c1fa15b26
+            [CasualMale.glb]=f31ba8b389268d4df6005cc62d4d7011de728bce
+            [SuitMale.glb]=3e97aa2cdfc272d88e30d325dfe90a97f90699b6
+            [HoodieMale.glb]=8c4974b4d7e193bd6e7edab045d9a8e21fc19018
+          )
+          for name in "${!files[@]}"; do
+            curl --fail --location --retry 3 "$base/$name" -o "assets/characters/$name"
+            actual="$(git hash-object "assets/characters/$name")"
+            test "$actual" = "${files[$name]}" || { echo "Git blob verification failed: $name"; exit 1; }
+          done
+      - name: Record license and provenance
+        run: |
+          cat > assets/characters/THIRD_PARTY_LICENSES.md <<'EOF'
+          # Character asset licenses and provenance
+
+          These five GLB files are Quaternius character models mirrored from the
+          public repository george11642/app-contest-sprint, directory
+          video-starter/public/models/chars/. The source repository's
+          video-starter/LICENSES.md identifies the models below as CC0 1.0
+          Universal, with commercial use permitted and no attribution required.
+
+          | Local file | Model style | Original pack | License |
+          |---|---|---|---|
+          | CasualFemale.glb | Modern casual female | Animated Women Pack | CC0 1.0 |
+          | FormalFemale.glb | Formal female | Animated Women Pack | CC0 1.0 |
+          | CasualMale.glb | Modern casual male | Animated Men Pack | CC0 1.0 |
+          | SuitMale.glb | Business suit male | Animated Men Pack | CC0 1.0 |
+          | HoodieMale.glb | Hoodie male | Animated Men Pack | CC0 1.0 |
+
+          Creator: Quaternius — https://quaternius.com
+          Original source license: https://creativecommons.org/publicdomain/zero/1.0/
+          Source license record: https://github.com/george11642/app-contest-sprint/blob/main/video-starter/LICENSES.md
+
+          These are stylized game-ready models, not photorealistic AAA scans.
+          Files are mirrored for use inside GAME GTA; the original pack is not
+          being offered for standalone resale.
+          EOF
+      - name: Commit vendored models
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/characters
+          if git diff --cached --quiet; then
+            echo "Character assets are already up to date."
+          else
+            git commit -m "Add licensed character GLB assets"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

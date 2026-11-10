@@ -30,6 +30,33 @@ for(let i=0;i<64;i++){const a=rnd()*Math.PI*2,r=28+rnd()*420;addPedestrian(Math.
 
 const character=new PlayerCharacter(scene),player=character.root;
 let crouching=false,sitting=false,transitioning=false;
+let previewYaw=0,presetLoadSerial=0,selectedPresetId=null;
+const characterPresets={
+ "casual-female":{name:"زن · روزمره",url:"assets/characters/CasualFemale.glb"},
+ "formal-female":{name:"زن · رسمی",url:"assets/characters/FormalFemale.glb"},
+ "casual-male":{name:"مرد · روزمره",url:"assets/characters/CasualMale.glb"},
+ "suit-male":{name:"مرد · کت‌وشلوار",url:"assets/characters/SuitMale.glb"},
+ "hoodie-male":{name:"مرد · هودی",url:"assets/characters/HoodieMale.glb"}
+};
+async function chooseCharacter(id){
+ const preset=characterPresets[id];if(!preset)return;
+ const serial=++presetLoadSerial,status=$("#characterStatus"),startButton=$("#startBtn");
+ document.querySelectorAll(".character-option").forEach(b=>{b.classList.toggle("selected",b.dataset.preset===id);b.disabled=true;});
+ startButton.disabled=true;status.textContent="در حال بارگذاری "+preset.name+"...";
+ try{
+  const clips=await character.loadModel(preset.url,()=>serial===presetLoadSerial);
+  if(serial!==presetLoadSerial)return;
+  if(!clips){status.textContent="بارگذاری این مدل لغو شد؛ دوباره انتخاب کن.";return;}
+  selectedPresetId=id;player.position.set(0,0,8);player.rotation.y=previewYaw;
+  status.textContent=preset.name+" آماده است · "+(clips.length?clips.length+" کلیپ انیمیشن":"حرکت پایه رویه‌ای");
+  startButton.disabled=false;
+ }catch(error){
+  if(serial===presetLoadSerial){status.textContent="بارگذاری مدل ناموفق بود: "+error.message;toast("فایل شخصیت دریافت نشد؛ اتصال اینترنت را بررسی کن");}
+ }finally{if(serial===presetLoadSerial)document.querySelectorAll(".character-option").forEach(b=>b.disabled=false);}
+}
+document.querySelectorAll(".character-option").forEach(button=>button.addEventListener("click",()=>chooseCharacter(button.dataset.preset)));
+chooseCharacter("casual-female");
+
 const audio=new GameAudio();
 const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);const carPaint=new THREE.MeshPhysicalMaterial({color:0x9b3430,metalness:.72,roughness:.24,clearcoat:.9,clearcoatRoughness:.12});block(car,2.2,.75,4,carPaint,0,.85,0);block(car,1.72,.72,2.05,new THREE.MeshPhysicalMaterial({color:0x426575,metalness:.2,roughness:.12,transparent:true,opacity:.72}),0,1.55,-.15);for(const sx of [-.78,.78]){block(car,.34,.16,.07,material(0xffe8b2),sx,1.02,2.02);block(car,.34,.16,.07,material(0x9d1f1f),sx,1.02,-2.02);}
 for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.22,16),material(0x17191b));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);car.add(w)}
@@ -61,8 +88,9 @@ function toggleCar(){
  }
 }
 $("#helpToggle").addEventListener("click",()=>{const panel=$("#helpDialog"),open=panel.classList.toggle("hidden")===false;$("#helpToggle").setAttribute("aria-expanded",String(open));});$("#helpClose").addEventListener("click",()=>{$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");});document.addEventListener("keydown",e=>{if(e.code==="Escape"&&!$("#helpDialog").classList.contains("hidden")){$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");}});
-$("#startBtn").onclick=()=>{begun=true;audio.init().catch(()=>toast("صدای مرورگر در دسترس نیست؛ تنظیمات صوتی مرورگر را بررسی کن"));$("#start").classList.add("hidden");$("#hud").classList.remove("hidden");$("#helpToggle").classList.remove("hidden");$("#audioToggle").classList.remove("hidden");$("#voicePanel").classList.remove("hidden");$("#modelPanel").classList.remove("hidden");renderer.domElement.requestPointerLock()};
+$("#startBtn").onclick=()=>{if(!character.model){toast("ابتدا یک شخصیت را انتخاب کن");return;}begun=true;audio.init().catch(()=>toast("صدای مرورگر در دسترس نیست؛ تنظیمات صوتی مرورگر را بررسی کن"));$("#start").classList.add("hidden");$("#hud").classList.remove("hidden");$("#helpToggle").classList.remove("hidden");$("#audioToggle").classList.remove("hidden");$("#voicePanel").classList.remove("hidden");$("#modelPanel").classList.remove("hidden");renderer.domElement.requestPointerLock()};
 renderer.domElement.onclick=()=>{if(begun&&document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock()};
+renderer.domElement.addEventListener("pointermove",e=>{if(!begun&&e.buttons===1){previewYaw+=e.movementX*.008;player.rotation.y=previewYaw;}});
 document.addEventListener("mousemove",e=>{if(!begun||document.pointerLockElement!==renderer.domElement)return;yaw-=e.movementX*.0025;pitch=clamp(pitch-e.movementY*.0018,-.12,.85)});
 document.addEventListener("keydown",e=>{keys.add(e.code);if(e.code==="Space"){e.preventDefault();if(!e.repeat)jumpQueued=true;}if(e.code==="KeyE"&&!e.repeat&&begun)toggleCar()});
 document.addEventListener("keyup",e=>keys.delete(e.code));
@@ -79,9 +107,10 @@ $("#sampleModelBtn").addEventListener("click",()=>{const status=$("#modelStatus"
 $("#animationFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;const status=$("#animationStatus");status.textContent="در حال خواندن فایل انیمیشن...";try{const names=await character.loadAnimationFile(file);status.textContent=names.length+" انیمیشن اضافه شد: "+names.join(", ");toast("انیمیشن‌ها به مدل فعلی اضافه شدند");}catch(err){status.textContent="بارگذاری انیمیشن ناموفق: "+err.message;toast("فایل انیمیشن سازگار نبود");}finally{e.target.value="";}});
 $("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
- const status=$("#modelStatus");status.textContent="در حال بارگذاری مدل...";
- try{const names=await character.loadModelFile(file);status.textContent="مدل شخصی فعال شد · "+(names.length?names.length+" کلیپ داخلی: "+names.join(", "):"بدون کلیپ داخلی؛ حرکت پایه رویه‌ای فعال است");toast("مدل شخصی خودت نمایش داده شد");$("#animationStatus").textContent="اکنون می‌توانی فایل انیمیشن جداگانه سازگار بارگذاری کنی.";}
- catch(err){status.textContent="بارگذاری ناموفق: "+err.message;toast("بارگذاری مدل ناموفق بود");}
+ const status=$("#characterStatus");status.textContent="در حال بررسی و بارگذاری مدل شخصی...";$("#startBtn").disabled=true;
+ try{const names=await character.loadModelFile(file);presetLoadSerial++;selectedPresetId="custom";player.position.set(0,0,8);status.textContent="شخصیت دلخواه فعال شد · "+(names.length?names.length+" کلیپ داخلی: "+names.join(", "):"بدون کلیپ داخلی؛ حرکت رویه‌ای در صورت سازگاری اسکلت");$("#startBtn").disabled=false;$("#animationStatus").textContent="مدل شخصی فعال است؛ فایل انیمیشن سازگار هم می‌توانی اضافه کنی.";toast("شخصیت دلخواه بارگذاری شد");}
+ catch(err){status.textContent="بارگذاری ناموفق: "+err.message;toast("فایل GLB معتبر نبود یا بارگذاری نشد");$("#startBtn").disabled=!character.model;}
+ finally{e.target.value="";}
 });
 $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
 document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("صدای کلید "+input.dataset.voice+" بارگذاری شد");}catch(err){toast("بارگذاری فایل صدا ناموفق بود");}}));
@@ -91,5 +120,5 @@ function update(dt){const windTime=clock.elapsedTime;for(const item of windObjec
 const f=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),r=new THREE.Vector3(f.z,0,-f.x);move.set(0,0,0);if(keys.has("KeyW"))move.add(f);if(keys.has("KeyS"))move.sub(f);if(keys.has("KeyD"))move.add(r);if(keys.has("KeyA"))move.sub(r);
 if(move.lengthSq()){move.normalize();const step=(crouching?2.2:(keys.has("ShiftLeft")?10:5.3))*dt, nx=player.position.x+move.x*step,nz=player.position.z+move.z*step;if(!collidesAt(nx,player.position.z))player.position.x=nx;if(!collidesAt(player.position.x,nz))player.position.z=nz;player.rotation.y=Math.atan2(move.x,move.z);}
 if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-490,490);player.position.z=clamp(player.position.z,-490,490);if(move.lengthSq())sitting=false;character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching,sitting)}
-function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.04);if(begun){update(dt);updateAudio();const target=inCar?car.position:player.position,h=inCar?1.4:1.55,hor=Math.cos(pitch)*dist;camPos.set(target.x-Math.sin(yaw)*hor,target.y+h+Math.sin(pitch)*dist+1,target.z-Math.cos(yaw)*hor);camera.position.lerp(camPos,1-Math.exp(-dt*8));camera.lookAt(target.x,target.y+h,target.z);const nearNpc=pedestrians.some(n=>n.root.position.distanceTo(player.position)<4.2);$("#prompt").textContent=nearCar()?"برای سوارشدن کلید E را بزن":nearNpc?"برای گفتگو با عابر کلید G را بزن":"WASD حرکت · Shift دویدن · G گفتگو";$("#prompt").classList.toggle("hidden",inCar);if(toastTime>0&&(toastTime-=dt)<=0)$("#toast").style.opacity=0}else{camera.position.set(22,19,28);camera.lookAt(0,0,0)}renderer.render(scene,camera)}
+function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.04);if(begun){update(dt);updateAudio();const target=inCar?car.position:player.position,h=inCar?1.4:1.55,hor=Math.cos(pitch)*dist;camPos.set(target.x-Math.sin(yaw)*hor,target.y+h+Math.sin(pitch)*dist+1,target.z-Math.cos(yaw)*hor);camera.position.lerp(camPos,1-Math.exp(-dt*8));camera.lookAt(target.x,target.y+h,target.z);const nearNpc=pedestrians.some(n=>n.root.position.distanceTo(player.position)<4.2);$("#prompt").textContent=nearCar()?"برای سوارشدن کلید E را بزن":nearNpc?"برای گفتگو با عابر کلید G را بزن":"WASD حرکت · Shift دویدن · G گفتگو";$("#prompt").classList.toggle("hidden",inCar);if(toastTime>0&&(toastTime-=dt)<=0)$("#toast").style.opacity=0}else{camera.position.set(0,3.0,17.5);camera.lookAt(0,1.1,8);player.rotation.y=previewYaw}renderer.render(scene,camera)}
 loop();addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6))});

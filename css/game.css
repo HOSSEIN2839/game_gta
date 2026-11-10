@@ -27,3 +27,24 @@ body{background:#101820}
 .voice-panel b,.model-panel b{color:#f4bb4e;letter-spacing:.06em}
 @media(max-width:680px){.help-toggle{top:100px;right:12px}.audio-toggle{top:58px;right:12px}.help-dialog{top:145px;right:12px;max-height:70vh}.voice-panel{top:145px;left:12px;right:auto}.model-panel{top:285px;left:12px;right:auto}.panel{padding:25px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Pre-game character selection and live 3D preview */
+.character-select-overlay{display:flex;align-items:center;justify-content:flex-start;padding:clamp(12px,3vw,42px);direction:ltr;background:linear-gradient(90deg,#07111af5 0%,#07111adf 38%,#07111a65 68%,#07111a25 100%)}
+.character-select-panel{direction:rtl;width:min(590px,56vw);max-height:94vh;overflow:auto;text-align:right}
+.character-select-panel h1{font-size:clamp(34px,4vw,48px);margin:8px 0}
+.character-select-panel>p{max-width:48ch}
+.character-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:16px 0}
+.character-option{display:flex;flex-direction:column;gap:5px;align-items:flex-start;text-align:right;width:100%;margin:0;padding:12px 14px;background:linear-gradient(145deg,#273c4b,#182733);color:#f5f6f7;border:1px solid #ffffff24;border-radius:11px;transition:border-color .18s,transform .18s,background .18s}
+.character-option strong{font-size:13px;color:#ffcf70}
+.character-option span{font-size:11px;color:#c2cdd5;font-weight:400}
+.character-option:hover:not(:disabled){transform:translateY(-2px);background:#314a5c}
+.character-option.selected{border:1px solid #ffcf70;background:linear-gradient(145deg,#3a4c4d,#1c3039);box-shadow:0 0 0 1px #ffcf7040,0 8px 25px #0005}
+.character-option:disabled{opacity:.6;cursor:wait}
+.custom-character{display:grid;gap:7px;padding:12px;border:1px dashed #ffffff50;border-radius:11px;background:#0c1724a8}
+.custom-character label{font-size:12px;font-weight:800;color:#f4bb4e}
+.custom-character input{width:100%;font-size:12px;color:#e8edf0}
+.custom-character small,#characterStatus{font-size:10px;color:#aebdc7;line-height:1.6}
+#characterStatus{display:block;margin:10px 0}
+.character-select-panel #startBtn{margin:8px 0 10px}
+@media(max-width:760px){.character-select-overlay{justify-content:center;align-items:flex-end;padding:10px;background:linear-gradient(0deg,#07111af7 0%,#07111adf 66%,#07111a40 100%)}.character-select-panel{width:min(100%,600px);max-height:78vh;padding:18px}.character-options{grid-template-columns:1fr 1fr;gap:7px}.character-option{padding:10px}.character-select-panel h1{font-size:34px}}
+@media(max-width:420px){.character-options{grid-template-columns:1fr}.character-select-panel{max-height:83vh}}
