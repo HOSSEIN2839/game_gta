@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const [html, game, character, audio, css, controls] = await Promise.all([
+const [html, game, character, audio, animationLibrary, css, controls] = await Promise.all([
   readFile(new URL("../index.php", import.meta.url), "utf8"),
   readFile(new URL("../js/game.js", import.meta.url), "utf8"),
   readFile(new URL("../js/character.js", import.meta.url), "utf8"),
   readFile(new URL("../js/audio.js", import.meta.url), "utf8"),
+  readFile(new URL("../js/animation-library.js", import.meta.url), "utf8"),
   readFile(new URL("../css/game.css", import.meta.url), "utf8"),
   readFile(new URL("../docs/CONTROLS_FA.md", import.meta.url), "utf8"),
 ]);
@@ -27,6 +28,9 @@ assert.match(game, /from "\.\/audio\.js"/, "Audio module import missing");
 assert.match(game, /function carCollidesAt/, "Vehicle/building collision guard missing");
 assert.match(game, /window\.addEventListener\("blur",\(\)=>keys\.clear\(\)\)/, "Keys must reset when the window loses focus");
 assert.match(character, /loadModelFile\(file\)/, "Local GLB loading must remain available");
+assert.match(character, /ensureUniversalAnimations\(/, "Universal animation library must be installed on each rig");
+assert.match(animationLibrary, /universal_/, "Shared universal clips must be generated for compatible rigs");
+for (const action of ["idle", "walk", "run", "jump", "crouch", "punch", "shoot", "sit", "hit", "death"]) assert.ok(animationLibrary.includes(action + ":"), `Universal animation missing: ${action}`);
 assert.match(audio, /footstepBuffer/, "Footstep effect must have a generated buffer");
 assert.match(audio, /setEngine\(/, "Engine audio controller missing");
 assert.match(css, /\.help-dialog/, "Guide styles missing");
