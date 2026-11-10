@@ -18,7 +18,8 @@ let seed=19;const rnd=()=>((seed=seed*9301+49297)%233280)/233280;
 const colors=[0xc5b59d,0x9eaaa9,0xb7a18d,0x8e999b,0xd0c5ad,0x9c9b91];
 const buildingColliders=[];
 for(let ix=-2;ix<=2;ix++)for(let iz=-2;iz<=2;iz++){if(!ix&&!iz)continue;for(let n=0;n<3;n++){const w=8+rnd()*7,d=8+rnd()*7,h=8+rnd()*22,x=ix*34+(rnd()-.5)*12,z=iz*34+(rnd()-.5)*12,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);buildingColliders.push({minX:x-w/2-.85,maxX:x+w/2+.85,minZ:z-d/2-.85,maxZ:z+d/2+.85});block(g,w,h,d,material(colors[Math.floor(rnd()*colors.length)]),0,h/2,0);block(g,w+.3,.4,d+.3,roof,0,h+.2,0);for(let f=1.5;f<h;f+=3){block(g,w*.62,1,.08,glass,0,f,d/2+.05);block(g,w*.62,1,.08,glass,0,f,-d/2-.05)}}}
-const character=new PlayerCharacter(scene),player=character.root;\nlet crouching=false,transitioning=false;
+const character=new PlayerCharacter(scene),player=character.root;
+let crouching=false,transitioning=false;
 const audio=new GameAudio();
 const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);block(car,2.2,.75,4,material(0x9b3430),0,.85,0);block(car,1.6,.7,2,glass,0,1.55,-.15);
 for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.22,16),material(0x17191b));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);car.add(w)}
