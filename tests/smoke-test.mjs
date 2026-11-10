@@ -33,4 +33,15 @@ assert.match(css, /\.help-dialog/, "Guide styles missing");
 for (const key of ["W A S D", "Space", "Shift", "E", "1", "4"]) {
   assert.ok(controls.includes(key), `Controls guide missing key documentation: ${key}`);
 }
+
+assert.match(game, /const grid=\[-280,-210,-140,-70,0,70,140,210,280\]/, "The playable city must use the expanded street grid");
+assert.match(game, /block\(scene,660,1,660,grass/, "The world ground must cover the expanded map");
+assert.match(game, /s=\(keys\.has\("KeyD"\)\?1:0\)-\(keys\.has\("KeyA"\)\?1:0\)/, "D must steer right and A must steer left while driving");
+assert.match(game, /move\.add\(r\).*move\.sub\(r\)/, "D/A on-foot movement must preserve right/left direction");
+assert.match(game, /const pedestrians=\[\]/, "Pedestrian population must be present");
+assert.match(game, /for\(const npc of pedestrians\)/, "Pedestrians must be animated");
+assert.match(character, /this\.weapon=new THREE\.Group\(\)/, "A visible procedural weapon must be available");
+assert.match(character, /this\.proceduralActionTime/, "Procedural fallback actions must be animated");
+assert.match(audio, /action\(kind\)/, "Combat action sound effects must be available");
+
 console.log("GAME GTA smoke checks passed.");
