@@ -97,7 +97,6 @@ export class PlayerCharacter {
   }
   this.playAction("idle");
  }
- }
  findAction(kind) {
   const pattern=CLIP_MATCH[kind]; if(!pattern) return null;
   const key=Object.keys(this.actions).find(name=>pattern.test(name));
