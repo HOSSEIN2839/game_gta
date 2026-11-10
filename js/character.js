@@ -58,8 +58,9 @@ export class PlayerCharacter {
   const gltf=await new Promise((resolve,reject)=>loader.parse(data,"",resolve,reject));
   return this.installGLTF(gltf, true);
  }
- async loadModel(url) {
+ async loadModel(url, shouldInstall=()=>true) {
   const gltf=await new GLTFLoader().loadAsync(url);
+  if(!shouldInstall()) return null;
   return this.installGLTF(gltf, false);
  }
  async loadAnimationFile(file) {
