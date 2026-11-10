@@ -32,6 +32,11 @@ let crouching=false,transitioning=false;
 const audio=new GameAudio();
 const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);block(car,2.2,.75,4,material(0x9b3430),0,.85,0);block(car,1.6,.7,2,glass,0,1.55,-.15);
 for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.22,16),material(0x17191b));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);car.add(w)}
+
+const parkedVehicles=[];
+function spawnParkedCar(x,z,color,rotation=0){const g=new THREE.Group();g.position.set(x,.02,z);g.rotation.y=rotation;scene.add(g);const bodyMat=new THREE.MeshStandardMaterial({color,metalness:.58,roughness:.3});block(g,1.9,.58,3.9,bodyMat,0,.72,0);const cabin=block(g,1.58,.72,1.85,glass,0,1.35,-.15);cabin.material=new THREE.MeshPhysicalMaterial({color:0x365a68,metalness:.18,roughness:.2,transparent:true,opacity:.78});for(const sx of [-.84,.84])for(const sz of [-1.25,1.25]){const tire=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.2,16),rubber);tire.rotation.z=Math.PI/2;tire.position.set(sx,.35,sz);g.add(tire);}for(const sx of [-.62,.62]){block(g,.3,.16,.06,material(0xffe7ad),sx,.77,1.97);block(g,.3,.15,.06,material(0x861a1a),sx,.75,-1.97);}parkedVehicles.push(g);}
+spawnParkedCar(-70,-145,0x315f85,.08);spawnParkedCar(140,75,0x777d82,Math.PI/2);spawnParkedCar(-210,140,0xb58a35,Math.PI/2);spawnParkedCar(210,-70,0x34664f,.02);spawnParkedCar(-140,-210,0x583e71,Math.PI/2);spawnParkedCar(70,210,0x9a4d37,.04);
+
 const keys=new Set();let begun=false,inCar=false,yaw=0,pitch=.2,dist=7.5,vy=0,toastTime=0,jumpQueued=false;
 let soundEnabled=true;
 function tone(freq=440,duration=.12,type="sine",volume=.12){if(!audio.ctx||!soundEnabled)return;const o=audio.ctx.createOscillator(),g=audio.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.ctx.currentTime);g.gain.setValueAtTime(volume,audio.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.ctx.currentTime+duration);o.connect(g);g.connect(audio.master);o.start();o.stop(audio.ctx.currentTime+duration);}
