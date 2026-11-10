@@ -1,0 +1,31 @@
+# GAME GTA Roadmap
+
+## Phase 1 — Playable foundation
+- [x] PHP entry point and desktop game shell
+- [x] Procedural small-city blockout
+- [x] Third-person mouse camera and wheel zoom
+- [x] Walk, sprint and jump
+- [x] Prototype enter/exit and driving
+- [ ] Original animated GLB player model
+- [ ] Collision and improved vehicle physics
+- [ ] Pause menu, sound and settings
+
+## Phase 2 — Gameplay
+- [ ] NPC pedestrians with idle, walk, flee and combat states
+- [ ] Melee combat, health and damage feedback
+- [ ] Weapon selection, aiming, shooting and reload
+- [ ] More vehicles and improved handling
+
+## Phase 3 — Character photo import
+- [ ] Face photo to 3D head/texture fitting
+- [ ] Full-body photo reconstruction
+- [ ] GLB export/import and preview
+- [ ] Secure upload and consent workflow
+
+## Phase 4 — Save and deploy
+- [ ] PHP API and MySQL save slots
+- [ ] Secure validation and upload limits
+- [ ] Performance and asset optimization
+- [ ] Apache deployment guide
+
+The current prototype uses procedural placeholder geometry and Three.js. Photo-to-3D reconstruction requires a separate specialized pipeline. Use only original or properly licensed assets.
