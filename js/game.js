@@ -5,9 +5,9 @@ const $=s=>document.querySelector(s), root=$("#world"), scene=new THREE.Scene();
 scene.background=new THREE.Color(0x9bb8c7);scene.fog=new THREE.Fog(0x9bb8c7,80,230);
 const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,500);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
-renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;root.appendChild(renderer.domElement);
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;root.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdcecff,0x58604a,2));
-const sun=new THREE.DirectionalLight(0xffedcf,2.3);sun.position.set(-40,70,35);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+const sun=new THREE.DirectionalLight(0xffedcf,2.3);sun.position.set(-40,70,35);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-115;sun.shadow.camera.right=115;sun.shadow.camera.top=115;sun.shadow.camera.bottom=-115;sun.shadow.bias=-0.00025;sun.shadow.normalBias=0.025;scene.add(sun);
 const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.88});
 function block(parent,w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 const grass=material(0x667d50),road=material(0x343a40),walk=material(0x999b91),glass=material(0x426575),roof=material(0x565b60);
