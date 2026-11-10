@@ -55,7 +55,8 @@ document.addEventListener("keydown",e=>{
  if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"Weapon animation":"No firearm clip; weapon gameplay is not installed");}
  if(e.code==="KeyT"){toast(character.triggerAction("interact")?"Character activity":"No activity clip in this model");}
 });
-$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("Sample character loaded");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("Sample character failed to load");}});\n$("#modelFile").addEventListener("change",async e=>{
+$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("Sample character loaded");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("Sample character failed to load");}});
+$("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  const status=$("#modelStatus");status.textContent="Loading character...";
  try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" clips: "+names.join(", "):"no embedded animations");toast("Character model loaded");}
