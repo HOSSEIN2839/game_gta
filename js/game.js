@@ -12,7 +12,7 @@ const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.88});
 function block(parent,w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 const grass=material(0x667d50),road=material(0x343a40),walk=material(0x999b91),glass=material(0x426575),roof=material(0x565b60);
 block(scene,1040,1,1040,grass,0,-.55,0);
-const grid=Array.from({length:19},(_,i)=>(i-9)*70);
+const grid=Array.from({length:15},(_,i)=>(i-7)*70);
 for(const p of grid){block(scene,15,.12,980,road,p,.02,0);block(scene,980,.12,15,road,0,.02,p);block(scene,12,.2,980,walk,p-14,.08,0);block(scene,12,.2,980,walk,p+14,.08,0);block(scene,980,.2,12,walk,0,.08,p-14);block(scene,980,.2,12,walk,0,.08,p+14)}
 let seed=19;const rnd=()=>((seed=seed*9301+49297)%233280)/233280;
 const colors=[0xc5b59d,0x9eaaa9,0xb7a18d,0x8e999b,0xd0c5ad,0x9c9b91];
