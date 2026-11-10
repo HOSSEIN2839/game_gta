@@ -30,7 +30,7 @@ function updateAudio(){const moving=keys.has("KeyW")||keys.has("KeyS")||keys.has
 const clamp=THREE.MathUtils.clamp,clock=new THREE.Clock(),move=new THREE.Vector3(),camPos=new THREE.Vector3();
 function toast(t){$("#toast").textContent=t;$("#toast").style.opacity=1;toastTime=2}
 function nearCar(){return player.position.distanceTo(car.position)<4.5}
-function toggleCar(){if(!inCar&&nearCar()){inCar=true;player.visible=false;toast("Vehicle entered");tone(180,.18,"square",.08);voiceLine("Let's go!")}else if(inCar){inCar=false;player.visible=true;player.position.copy(car.position).add(new THREE.Vector3(2.5,0,0));toast("Vehicle exited");tone(260,.12,"triangle",.08);voiceLine("I'm out.")}$("#mode").textContent=inCar?"DRIVING":"ON FOOT"}
+function toggleCar(){if(!inCar&&nearCar()){inCar=true;player.visible=false;toast("Vehicle entered");tone(180,.18,"square",.08)}else if(inCar){inCar=false;player.visible=true;player.position.copy(car.position).add(new THREE.Vector3(2.5,0,0));toast("Vehicle exited");tone(260,.12,"triangle",.08)}$("#mode").textContent=inCar?"DRIVING":"ON FOOT"}
 $("#startBtn").onclick=()=>{begun=true;audio.init();$("#start").classList.add("hidden");$("#hud").classList.remove("hidden");$("#help").classList.remove("hidden");$("#audioToggle").classList.remove("hidden");$("#voicePanel").classList.remove("hidden");renderer.domElement.requestPointerLock()};
 renderer.domElement.onclick=()=>{if(begun&&document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock()};
 document.addEventListener("mousemove",e=>{if(!begun||document.pointerLockElement!==renderer.domElement)return;yaw-=e.movementX*.0025;pitch=clamp(pitch-e.movementY*.0018,-.12,.85)});
