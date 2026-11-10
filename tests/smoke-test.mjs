@@ -42,6 +42,12 @@ assert.match(game, /const pedestrians=\[\]/, "Pedestrian population must be pres
 assert.match(game, /for\(const npc of pedestrians\)/, "Pedestrians must be animated");
 assert.match(character, /this\.weapon=new THREE\.Group\(\)/, "A visible procedural weapon must be available");
 assert.match(character, /this\.proceduralActionTime/, "Procedural fallback actions must be animated");
+assert.match(character, /loadAnimationFile\(file\)/, "Separate animation upload must be available");
+assert.match(character, /attachAnimations\(gltf\.animations\)/, "Separate animation clips must attach to the active character");
+assert.match(character, /animateModelBones\(/, "Models without suitable clips must receive procedural bone animation");
+assert.match(game, /character\.userModel/, "Re-activate button must preserve and restore the user's uploaded model");
+assert.match(html, /id="animationFile"/, "Separate animation file input must exist");
+assert.match(html, /نمایش دوباره مدل شخصی بارگذاری‌شده/, "Re-activate button must not replace the uploaded character");
 assert.match(audio, /action\(kind\)/, "Combat action sound effects must be available");
 
 console.log("GAME GTA smoke checks passed.");
