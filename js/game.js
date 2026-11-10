@@ -26,8 +26,8 @@ for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(ne
 const keys=new Set();let begun=false,inCar=false,yaw=0,pitch=.2,dist=7.5,vy=0,toastTime=0,jumpQueued=false;
 let soundEnabled=true;
 function tone(freq=440,duration=.12,type="sine",volume=.12){if(!audio.ctx||!soundEnabled)return;const o=audio.ctx.createOscillator(),g=audio.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.ctx.currentTime);g.gain.setValueAtTime(volume,audio.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.ctx.currentTime+duration);o.connect(g);g.connect(audio.master);o.start();o.stop(audio.ctx.currentTime+duration);}
-function voiceLine(message){if(soundEnabled&&"speechSynthesis"in window){const u=new SpeechSynthesisUtterance(message);u.lang="en-US";u.rate=.96;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}}
-function setSound(on){soundEnabled=on;audio.setEnabled(on);$("#audioToggle").textContent=on?"🔊 SOUND ON":"🔇 SOUND OFF";$("#audioToggle").setAttribute("aria-pressed",String(on));}
+function voiceLine(message){if(!soundEnabled||!("speechSynthesis"in window))return;const u=new SpeechSynthesisUtterance(message);u.lang="fa-IR";u.rate=.94;u.pitch=1;const voices=window.speechSynthesis.getVoices();const fa=voices.find(v=>v.lang?.toLowerCase().startsWith("fa"));if(fa)u.voice=fa;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}
+function setSound(on){soundEnabled=on;audio.setEnabled(on);$("#audioToggle").textContent=on?"🔊 صدا روشن":"🔇 صدا خاموش";$("#audioToggle").setAttribute("aria-pressed",String(on));}
 function updateAudio(){const moving=keys.has("KeyW")||keys.has("KeyS")||keys.has("KeyA")||keys.has("KeyD");if(!inCar&&moving)audio.footstep(keys.has("ShiftLeft"));const throttle=(keys.has("KeyW")?1:(keys.has("KeyS")?-.45:0));audio.setEngine(inCar,throttle);}
 const clamp=THREE.MathUtils.clamp,clock=new THREE.Clock(),move=new THREE.Vector3(),camPos=new THREE.Vector3();
 function toast(t){$("#toast").textContent=t;$("#toast").style.opacity=1;toastTime=2}
@@ -36,11 +36,11 @@ function collidesAt(x,z){return buildingColliders.some(b=>x>b.minX&&x<b.maxX&&z>
 function toggleCar(){
  if(transitioning)return;
  if(!inCar&&nearCar()){
-  transitioning=true;const hasEntry=character.triggerAction("enter");toast("Entering vehicle...");
-  setTimeout(()=>{inCar=true;player.visible=false;transitioning=false;toast("Vehicle entered");tone(180,.18,"square",.08);$("#mode").textContent="DRIVING";},hasEntry?650:0);
+  transitioning=true;const hasEntry=character.triggerAction("enter");toast("در حال سوارشدن...");voiceLine("سوار خودرو شدم");
+  setTimeout(()=>{inCar=true;player.visible=false;transitioning=false;toast("سوار خودرو شدی");tone(180,.18,"square",.08);$("#mode").textContent="DRIVING";},hasEntry?650:0);
  }else if(inCar){
-  transitioning=true;inCar=false;player.position.copy(car.position).add(new THREE.Vector3(2.5,0,0));player.visible=true;const hasExit=character.triggerAction("exit");toast("Exiting vehicle...");
-  setTimeout(()=>{transitioning=false;toast("Vehicle exited");tone(260,.12,"triangle",.08);$("#mode").textContent="ON FOOT";},hasExit?650:0);
+  transitioning=true;inCar=false;player.position.copy(car.position).add(new THREE.Vector3(2.5,0,0));player.visible=true;const hasExit=character.triggerAction("exit");toast("در حال پیاده‌شدن...");voiceLine("از خودرو پیاده شدم");
+  setTimeout(()=>{transitioning=false;toast("از خودرو پیاده شدی");tone(260,.12,"triangle",.08);$("#mode").textContent="ON FOOT";},hasExit?650:0);
  }
 }
 $("#helpToggle").addEventListener("click",()=>{const panel=$("#helpDialog"),open=panel.classList.toggle("hidden")===false;$("#helpToggle").setAttribute("aria-expanded",String(open));});$("#helpClose").addEventListener("click",()=>{$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");});document.addEventListener("keydown",e=>{if(e.code==="Escape"&&!$("#helpDialog").classList.contains("hidden")){$("#helpDialog").classList.add("hidden");$("#helpToggle").setAttribute("aria-expanded","false");}});
@@ -56,15 +56,15 @@ document.addEventListener("keydown",e=>{
  if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"Weapon animation":"No firearm clip; weapon gameplay is not installed");}
  if(e.code==="KeyT"){toast(character.triggerAction("interact")?"Character activity":"No activity clip in this model");}
 });
-$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("Sample character loaded");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("Sample character failed to load");}});
+$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("شخصیت نمونه بارگذاری شد");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("بارگذاری شخصیت نمونه ناموفق بود");}});
 $("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  const status=$("#modelStatus");status.textContent="Loading character...";
- try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" clips: "+names.join(", "):"no embedded animations");toast("Character model loaded");}
- catch(err){status.textContent="Load failed: "+err.message;toast("Could not load GLB model");}
+ try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" clips: "+names.join(", "):"no embedded animations");toast("مدل شخصیت بارگذاری شد");}
+ catch(err){status.textContent="Load failed: "+err.message;toast("بارگذاری مدل ناموفق بود");}
 });
 $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
-document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("Voice key "+input.dataset.voice+" loaded");}catch(err){toast("Could not load voice file");}}));
+document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("صدای کلید "+input.dataset.voice+" بارگذاری شد");}catch(err){toast("بارگذاری فایل صدا ناموفق بود");}}));
 document.addEventListener("keydown",e=>{if(!e.repeat&&["Digit1","Digit2","Digit3","Digit4"].includes(e.code))audio.voice(e.code.slice(-1));});
 renderer.domElement.addEventListener("wheel",e=>dist=clamp(dist+Math.sign(e.deltaY)*.8,3.2,14),{passive:true});
 function update(dt){if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyA")?1:0)-(keys.has("KeyD")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);car.position.addScaledVector(f,t*dt*15);car.position.x=clamp(car.position.x,-105,105);car.position.z=clamp(car.position.z,-105,105);return}
