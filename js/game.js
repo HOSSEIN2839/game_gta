@@ -28,7 +28,7 @@ function addPedestrian(x,z,phase){const g=new THREE.Group();g.position.set(x,0,z
 for(let i=0;i<18;i++){const a=rnd()*Math.PI*2,r=22+rnd()*120;addPedestrian(Math.cos(a)*r,Math.sin(a)*r,rnd()*6);}
 
 const character=new PlayerCharacter(scene),player=character.root;
-let crouching=false,transitioning=false;
+let crouching=false,sitting=false,transitioning=false;
 const audio=new GameAudio();
 const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);block(car,2.2,.75,4,material(0x9b3430),0,.85,0);block(car,1.6,.7,2,glass,0,1.55,-.15);
 for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.22,16),material(0x17191b));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);car.add(w)}
@@ -67,6 +67,7 @@ document.addEventListener("keyup",e=>keys.delete(e.code));
 window.addEventListener("blur",()=>keys.clear());
 document.addEventListener("keydown",e=>{
  if(e.repeat||!begun||inCar)return;
+ if(e.code==="KeyV"){sitting=!sitting;toast(sitting?"حالت نشستن فعال شد":"از حالت نشستن خارج شدی");}
  if(e.code==="KeyC"){crouching=!crouching;const ok=character.triggerAction("crouch");toast(crouching?(ok?"در حال خم‌شدن":"این مدل انیمیشن خم‌شدن ندارد"):"ایستاده");}
  if(e.code==="KeyF"){const ok=character.triggerAction("punch");if(ok)audio.action("punch");toast(ok?"انیمیشن مشت اجرا شد":"این مدل انیمیشن مشت ندارد");}
  if(e.code==="KeyR"){const ok=character.triggerAction("shoot");if(ok)audio.action("shoot");toast(ok?"آماده‌سازی/شلیک نمایشی":"کلیپ سلاح وجود ندارد؛ گیم‌پلی سلاح فعال نیست");}
@@ -87,6 +88,6 @@ renderer.domElement.addEventListener("wheel",e=>dist=clamp(dist+Math.sign(e.delt
 function update(dt){for(const npc of pedestrians){npc.phase+=dt*npc.speed;const a=npc.phase*.2;npc.root.position.set(npc.origin.x+Math.cos(a)*npc.radius,0,npc.origin.z+Math.sin(a)*npc.radius);npc.root.rotation.y=-a+Math.PI/2;const swing=Math.sin(npc.phase*3)*.4;npc.legs[0].rotation.x=swing;npc.legs[1].rotation.x=-swing;}if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);const nx=clamp(car.position.x+f.x*t*dt*15,-305,305),nz=clamp(car.position.z+f.z*t*dt*15,-305,305);if(!carCollidesAt(nx,nz))car.position.set(nx,0,nz);return}
 const f=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),r=new THREE.Vector3(f.z,0,-f.x);move.set(0,0,0);if(keys.has("KeyW"))move.add(f);if(keys.has("KeyS"))move.sub(f);if(keys.has("KeyD"))move.add(r);if(keys.has("KeyA"))move.sub(r);
 if(move.lengthSq()){move.normalize();const step=(crouching?2.2:(keys.has("ShiftLeft")?10:5.3))*dt, nx=player.position.x+move.x*step,nz=player.position.z+move.z*step;if(!collidesAt(nx,player.position.z))player.position.x=nx;if(!collidesAt(player.position.x,nz))player.position.z=nz;player.rotation.y=Math.atan2(move.x,move.z);}
-if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-310,310);player.position.z=clamp(player.position.z,-310,310);character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching)}
+if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-310,310);player.position.z=clamp(player.position.z,-310,310);if(move.lengthSq())sitting=false;character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching,sitting)}
 function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.04);if(begun){update(dt);updateAudio();const target=inCar?car.position:player.position,h=inCar?1.4:1.55,hor=Math.cos(pitch)*dist;camPos.set(target.x-Math.sin(yaw)*hor,target.y+h+Math.sin(pitch)*dist+1,target.z-Math.cos(yaw)*hor);camera.position.lerp(camPos,1-Math.exp(-dt*8));camera.lookAt(target.x,target.y+h,target.z);$("#prompt").classList.toggle("hidden",inCar||!nearCar());if(toastTime>0&&(toastTime-=dt)<=0)$("#toast").style.opacity=0}else{camera.position.set(22,19,28);camera.lookAt(0,0,0)}renderer.render(scene,camera)}
 loop();addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6))});
