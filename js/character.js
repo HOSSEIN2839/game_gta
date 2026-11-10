@@ -19,7 +19,7 @@ export class PlayerCharacter {
   this.root = new THREE.Group(); scene.add(this.root);
   this.procedural = new THREE.Group(); this.root.add(this.procedural);
   this.mixer = null; this.actions = {}; this.clips = {}; this.activeAction = null;
-  this.overrideRemaining = 0; this.overrideName = null; this.model = null; this.proceduralAction = null; this.proceduralActionTime = 0;
+  this.overrideRemaining = 0; this.overrideName = null; this.model = null; this.userModel = null; this.boneBases = new Map(); this.modelPhase = 0; this.proceduralAction = null; this.proceduralActionTime = 0;
   const mat = c => new THREE.MeshStandardMaterial({color:c,roughness:.82});
   const skin=mat(0xb98262), shirt=mat(0x263f59), pants=mat(0x242a32), shoe=mat(0x17191c), hair=mat(0x25201d);
   const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,7,14),shirt); torso.position.y=1.35; this.procedural.add(torso);
@@ -52,13 +52,22 @@ export class PlayerCharacter {
   const loader=new GLTFLoader();
   const data=await file.arrayBuffer();
   const gltf=await new Promise((resolve,reject)=>loader.parse(data,"",resolve,reject));
-  return this.installGLTF(gltf);
+  return this.installGLTF(gltf, true);
  }
  async loadModel(url) {
   const gltf=await new GLTFLoader().loadAsync(url);
-  return this.installGLTF(gltf);
+  return this.installGLTF(gltf, false);
  }
- installGLTF(gltf) {
+ async loadAnimationFile(file) {
+  if(!file || !/\.(glb|gltf)$/i.test(file.name)) throw new Error('Choose a .glb or .gltf animation file.');
+  const loader=new GLTFLoader(), data=await file.arrayBuffer();
+  const gltf=await new Promise((resolve,reject)=>loader.parse(data,'',resolve,reject));
+  if(!gltf.animations?.length) throw new Error('No animation clips were found in this file.');
+  if(!this.model) throw new Error('Load your character model first.');
+  this.attachAnimations(gltf.animations);
+  return gltf.animations.map(c=>c.name);
+ }
+ installGLTF(gltf, isUserModel=false) {
   const model=gltf.scene;
   model.updateMatrixWorld(true);
   const bounds=new THREE.Box3().setFromObject(model);
@@ -71,17 +80,23 @@ export class PlayerCharacter {
   if(this.model) this.root.remove(this.model);
   this.procedural.visible=false;
   this.root.add(model); this.model=model;
+  if(isUserModel) this.userModel=model;
   if(this.mixer) this.mixer.stopAllAction();
-  this.mixer=null; this.actions={}; this.clips={}; this.activeAction=null;
-  if(gltf.animations?.length) {
-   this.mixer=new THREE.AnimationMixer(model);
-   for(const clip of gltf.animations) {
-    const key=clip.name.toLowerCase();
-    this.clips[key]=clip; this.actions[key]=this.mixer.clipAction(clip);
-   }
-   this.playAction("idle");
-  }
+  this.mixer=null; this.actions={}; this.clips={}; this.activeAction=null; this.boneBases.clear();
+  model.traverse(o=>{if(o.isBone)this.boneBases.set(o,{x:o.rotation.x,y:o.rotation.y,z:o.rotation.z});});
+  if(gltf.animations?.length) this.attachAnimations(gltf.animations);
   return Object.keys(this.clips);
+ }
+ attachAnimations(clips) {
+  if(!this.model) throw new Error("No character model is active.");
+  if(!this.mixer) this.mixer=new THREE.AnimationMixer(this.model);
+  for(const clip of clips) {
+   const key=clip.name.toLowerCase();
+   if(this.actions[key]) continue;
+   this.clips[key]=clip; this.actions[key]=this.mixer.clipAction(clip);
+  }
+  this.playAction("idle");
+ }
  }
  findAction(kind) {
   const pattern=CLIP_MATCH[kind]; if(!pattern) return null;
@@ -116,7 +131,10 @@ export class PlayerCharacter {
     this.overrideRemaining-=dt;
     if(this.overrideRemaining<=0){if(this.activeAction)this.activeAction.fadeOut(.12);this.activeAction=null;this.overrideName=null;}
    }
-   if(this.overrideRemaining<=0) this.playAction(air?"jump":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle");
+   if(this.overrideRemaining<=0) {
+    const desired=air?"jump":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
+    if(!this.playAction(desired)) this.animateModelBones(dt,speed,crouching,air);
+   }
    return;
   }
   this.phase+=dt*(speed>7?13:speed>.1?8:2);
@@ -126,5 +144,22 @@ export class PlayerCharacter {
   else {const idle=Math.sin(this.phase)*.025;this.leftArm.rotation.x=idle;this.rightArm.rotation.x=-idle;this.leftLeg.rotation.x=0;this.rightLeg.rotation.x=0;}
   if(air){this.leftLeg.rotation.x=-.35;this.rightLeg.rotation.x=.35;this.leftArm.rotation.x=-.8;this.rightArm.rotation.x=-.8;}
   if(crouching){this.procedural.scale.y=.78;this.procedural.position.y=-.35;}else{this.procedural.scale.y=1;this.procedural.position.y=0;}
+ }
+ animateModelBones(dt,speed,crouching,air) {
+  if(!this.model)return;
+  this.modelPhase+=dt*(speed>7?12:speed>.1?8:2);
+  const swing=speed>.1?Math.sin(this.modelPhase)*.48:Math.sin(this.modelPhase)*.025;
+  for(const [bone,base] of this.boneBases) {
+   const n=bone.name.toLowerCase();
+   bone.rotation.set(base.x,base.y,base.z);
+   if(/left.*(upleg|thigh|leg)|thigh.*left/.test(n))bone.rotation.x+=swing;
+   else if(/right.*(upleg|thigh|leg)|thigh.*right/.test(n))bone.rotation.x-=swing;
+   else if(/left.*(arm|shoulder)/.test(n))bone.rotation.x-=swing*.65;
+   else if(/right.*(arm|shoulder)/.test(n))bone.rotation.x+=swing*.65;
+   if(crouching&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.35;
+   if(air&&/(arm|shoulder)/.test(n))bone.rotation.x-=.35;
+  }
+  const hips=[...this.boneBases.keys()].find(b=>/hips|pelvis|root/i.test(b.name));
+  if(hips){const base=this.boneBases.get(hips);hips.position.y=base.y+Math.sin(this.modelPhase*2)*(speed>.1?.025:.008)-(crouching?.08:0);}
  }
 }
