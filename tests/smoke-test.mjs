@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 
 const [html, game, character, audio, animationLibrary, css, controls] = await Promise.all([
   readFile(new URL("../index.php", import.meta.url), "utf8"),
@@ -11,6 +11,18 @@ const [html, game, character, audio, animationLibrary, css, controls] = await Pr
   readFile(new URL("../docs/CONTROLS_FA.md", import.meta.url), "utf8"),
 ]);
 
+const characterAssets = [
+  "CasualFemale.glb",
+  "FormalFemale.glb",
+  "CasualMale.glb",
+  "SuitMale.glb",
+  "HoodieMale.glb",
+];
+for (const asset of characterAssets) {
+  const info = await stat(new URL("../assets/characters/" + asset, import.meta.url));
+  assert.ok(info.isFile() && info.size > 100_000, `Missing or implausibly small bundled character asset: ${asset}`);
+}
+assert.match(html, /assets\/characters/, "Character assets must be loaded from the repository");
 assert.match(html, /<html lang="fa" dir="rtl">/, "The game shell must be Persian and RTL");
 assert.match(html, /id="world"/, "The render root must exist");
 assert.match(html, /id="startBtn"/, "The start button must exist");
