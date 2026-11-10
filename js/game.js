@@ -50,15 +50,15 @@ document.addEventListener("keydown",e=>{keys.add(e.code);if(e.code==="Space"){e.
 document.addEventListener("keyup",e=>keys.delete(e.code));
 document.addEventListener("keydown",e=>{
  if(e.repeat||!begun||inCar)return;
- if(e.code==="KeyC"){crouching=!crouching;character.triggerAction("crouch");toast(crouching?"Crouching":"Standing");}
- if(e.code==="KeyF"){character.triggerAction("punch");toast("Melee action");}
- if(e.code==="KeyR"){character.triggerAction("shoot");toast("Weapon action (weapon system not installed yet)");}
- if(e.code==="KeyT"){character.triggerAction("interact");toast("Character activity");}
+ if(e.code==="KeyC"){crouching=!crouching;const ok=character.triggerAction("crouch");toast(crouching?(ok?"Crouching":"No crouch clip in this model"):"Standing");}
+ if(e.code==="KeyF"){toast(character.triggerAction("punch")?"Punch animation":"No punch clip in this model");}
+ if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"Weapon animation":"No firearm clip; weapon gameplay is not installed");}
+ if(e.code==="KeyT"){toast(character.triggerAction("interact")?"Character activity":"No activity clip in this model");}
 });
-$("#modelFile").addEventListener("change",async e=>{
+$("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="Downloading CC0 sample character...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="Sample loaded · "+names.length+" clips: "+names.join(", ");toast("Sample character loaded");}catch(err){status.textContent="Sample unavailable: "+err.message;toast("Sample character failed to load");}});\n$("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  const status=$("#modelStatus");status.textContent="Loading character...";
- try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" animation clips":"no embedded animations");toast("Character model loaded");}
+ try{const names=await character.loadModelFile(file);status.textContent="Model loaded · "+(names.length?names.length+" clips: "+names.join(", "):"no embedded animations");toast("Character model loaded");}
  catch(err){status.textContent="Load failed: "+err.message;toast("Could not load GLB model");}
 });
 $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
