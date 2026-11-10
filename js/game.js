@@ -107,10 +107,29 @@ $("#sampleModelBtn").addEventListener("click",()=>{const status=$("#modelStatus"
 $("#animationFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;const status=$("#animationStatus");status.textContent="در حال خواندن فایل انیمیشن...";try{const names=await character.loadAnimationFile(file);status.textContent=names.length+" انیمیشن اضافه شد: "+names.join(", ");toast("انیمیشن‌ها به مدل فعلی اضافه شدند");}catch(err){status.textContent="بارگذاری انیمیشن ناموفق: "+err.message;toast("فایل انیمیشن سازگار نبود");}finally{e.target.value="";}});
 $("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
- const status=$("#characterStatus");status.textContent="در حال بررسی و بارگذاری مدل شخصی...";$("#startBtn").disabled=true;
- try{const names=await character.loadModelFile(file);presetLoadSerial++;selectedPresetId="custom";player.position.set(0,0,8);status.textContent="شخصیت دلخواه فعال شد · "+(names.length?names.length+" کلیپ داخلی: "+names.join(", "):"بدون کلیپ داخلی؛ حرکت رویه‌ای در صورت سازگاری اسکلت");$("#startBtn").disabled=false;$("#animationStatus").textContent="مدل شخصی فعال است؛ فایل انیمیشن سازگار هم می‌توانی اضافه کنی.";toast("شخصیت دلخواه بارگذاری شد");}
- catch(err){status.textContent="بارگذاری ناموفق: "+err.message;toast("فایل GLB معتبر نبود یا بارگذاری نشد");$("#startBtn").disabled=!character.model;}
- finally{e.target.value="";}
+ // Invalidate any preset request immediately: a slower network response must never
+ // replace the custom model the player has just chosen.
+ const serial=++presetLoadSerial;
+ const status=$("#characterStatus"),startButton=$("#startBtn");
+ status.textContent="در حال بررسی و بارگذاری مدل شخصی...";
+ startButton.disabled=true;
+ document.querySelectorAll(".character-option").forEach(b=>b.classList.remove("selected"));
+ try{
+  const names=await character.loadModelFile(file);
+  if(serial!==presetLoadSerial)return;
+  selectedPresetId="custom";player.position.set(0,0,8);player.rotation.y=previewYaw;
+  status.textContent="شخصیت دلخواه فعال شد · "+(names.length?names.length+" کلیپ داخلی: "+names.join(", "):"بدون کلیپ داخلی؛ حرکت پایه فقط در صورت سازگاری اسکلت");
+  startButton.disabled=false;
+  $("#animationStatus").textContent="مدل شخصی فعال است؛ فایل انیمیشن سازگار هم می‌توانی اضافه کنی.";
+  $("#modelStatus").textContent="شخصیت دلخواه فعال است";
+  toast("شخصیت دلخواه بارگذاری شد");
+ }catch(err){
+  if(serial===presetLoadSerial){
+   status.textContent="بارگذاری ناموفق: "+err.message;
+   toast("فایل GLB معتبر نبود یا بارگذاری نشد");
+   startButton.disabled=!character.model;
+  }
+ }finally{e.target.value="";}
 });
 $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
 document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("صدای کلید "+input.dataset.voice+" بارگذاری شد");}catch(err){toast("بارگذاری فایل صدا ناموفق بود");}}));
