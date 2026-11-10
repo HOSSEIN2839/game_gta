@@ -31,4 +31,4 @@
 - [ ] Performance and asset optimization
 - [ ] Apache deployment guide
 
-The current prototype uses procedural placeholder geometry and Three.js. Photo-to-3D reconstruction requires a separate specialized pipeline. Use only original or properly licensed assets.
+The current prototype uses Three.js. The GLB loader supports a publisher-hosted CC0 sample and user-selected local GLB files; the sample is fetched at runtime and is not bundled in this repository. Photo-to-3D reconstruction requires a separate specialized pipeline. Use only original or properly licensed assets.
