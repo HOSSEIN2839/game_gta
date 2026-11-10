@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  syntax:
+  syntax-and-smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,3 +18,5 @@ jobs:
             echo "Checking $file"
             node --input-type=module --check < "$file"
           done
+      - name: Run project smoke checks
+        run: node tests/smoke-test.mjs
