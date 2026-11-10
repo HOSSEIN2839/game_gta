@@ -1,0 +1,27 @@
+name: GAME GTA quality checks
+
+on:
+  pull_request:
+    branches: [main, feature/universal-animation-library]
+  push:
+    branches: [main, feature/universal-animation-library, feature/open-world-worldlife-upgrade]
+
+jobs:
+  javascript-and-smoke-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check js/game.js
+          node --check js/character.js
+          node --check js/audio.js
+          node --check js/animation-library.js
+          node --check tests/smoke-test.mjs
+      - name: Run smoke tests
+        run: node tests/smoke-test.mjs
