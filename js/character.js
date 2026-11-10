@@ -110,6 +110,6 @@ export class PlayerCharacter {
   if(speed>.1){const swing=Math.sin(this.phase)*.62;this.leftLeg.rotation.x=swing;this.rightLeg.rotation.x=-swing;this.leftArm.rotation.x=-swing*.72;this.rightArm.rotation.x=swing*.72;}
   else {const idle=Math.sin(this.phase)*.025;this.leftArm.rotation.x=idle;this.rightArm.rotation.x=-idle;this.leftLeg.rotation.x=0;this.rightLeg.rotation.x=0;}
   if(air){this.leftLeg.rotation.x=-.35;this.rightLeg.rotation.x=.35;this.leftArm.rotation.x=-.8;this.rightArm.rotation.x=-.8;}
-  if(crouching){this.root.position.y=Math.min(this.root.position.y,0);this.procedural.scale.y=.78;this.procedural.position.y=-.35;}else{this.procedural.scale.y=1;this.procedural.position.y=0;}
+  if(crouching){this.procedural.scale.y=.78;this.procedural.position.y=-.35;}else{this.procedural.scale.y=1;this.procedural.position.y=0;}
  }
 }
