@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createUniversalAnimationClips } from "./animation-library.js";
 
 const CLIP_MATCH = {
  idle: /idle|stand|breath/,
@@ -11,7 +12,10 @@ const CLIP_MATCH = {
  shoot: /shoot|fire|pistol|rifle|gun/,
  enter: /enter.?vehicle|enter.?car|vehicle.?enter|car.?enter/,
  exit: /exit.?vehicle|exit.?car|vehicle.?exit|car.?exit/,
- interact: /wave|talk|interact|phone|sit|emote/
+ interact: /wave|talk|interact|phone|emote/,
+ sit: /sit|sitting/,
+ hit: /hit|damage|hurt/,
+ death: /death|die|dead|fall.?down/
 };
 
 export class PlayerCharacter {
@@ -85,6 +89,7 @@ export class PlayerCharacter {
   this.mixer=null; this.actions={}; this.clips={}; this.activeAction=null; this.boneBases.clear();
   model.traverse(o=>{if(o.isBone)this.boneBases.set(o,{x:o.rotation.x,y:o.rotation.y,z:o.rotation.z});});
   if(gltf.animations?.length) this.attachAnimations(gltf.animations);
+  this.ensureUniversalAnimations();
   return Object.keys(this.clips);
  }
  attachAnimations(clips) {
@@ -97,10 +102,16 @@ export class PlayerCharacter {
   }
   this.playAction("idle");
  }
+ ensureUniversalAnimations() {
+  if(!this.model) return;
+  const missing=createUniversalAnimationClips(this.model).filter(clip=>!this.findAction(clip.name.replace(/^universal_/, "")));
+  if(missing.length) this.attachAnimations(missing);
+ }
  findAction(kind) {
   const pattern=CLIP_MATCH[kind]; if(!pattern) return null;
-  const key=Object.keys(this.actions).find(name=>pattern.test(name));
-  return key ? this.actions[key] : null;
+  const keys=Object.keys(this.actions).filter(name=>pattern.test(name));
+  keys.sort((a,b)=>Number(a.startsWith("universal_"))-Number(b.startsWith("universal_")));
+  return keys.length ? this.actions[keys[0]] : null;
  }
  playAction(kind) {
   if(!this.mixer) return false;
