@@ -17,13 +17,13 @@ for(const p of grid){block(scene,13,.12,220,road,p,.02,0);block(scene,220,.12,13
 let seed=19;const rnd=()=>((seed=seed*9301+49297)%233280)/233280;
 const colors=[0xc5b59d,0x9eaaa9,0xb7a18d,0x8e999b,0xd0c5ad,0x9c9b91];
 const buildingColliders=[];
-for(let ix=-4;ix<4;ix++)for(let iz=-4;iz<4;iz++){if(!ix&&!iz)continue;for(let n=0;n<4;n++){const w=8+rnd()*7,d=8+rnd()*7,h=8+rnd()*22,x=ix*70+35+(rnd()-.5)*18,z=iz*70+35+(rnd()-.5)*18,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);buildingColliders.push({minX:x-w/2-.85,maxX:x+w/2+.85,minZ:z-d/2-.85,maxZ:z+d/2+.85});block(g,w,h,d,material(colors[Math.floor(rnd()*colors.length)]),0,h/2,0);block(g,w+.3,.4,d+.3,roof,0,h+.2,0);for(let f=1.5;f<h;f+=3){block(g,w*.62,1,.08,glass,0,f,d/2+.05);block(g,w*.62,1,.08,glass,0,f,-d/2-.05)}}}
+for(let ix=-4;ix<4;ix++)for(let iz=-4;iz<4;iz++){if(!ix&&!iz)continue;for(let n=0;n<3;n++){const w=8+rnd()*7,d=8+rnd()*7,h=8+rnd()*22,x=ix*70+35+(rnd()-.5)*18,z=iz*70+35+(rnd()-.5)*18,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);buildingColliders.push({minX:x-w/2-.85,maxX:x+w/2+.85,minZ:z-d/2-.85,maxZ:z+d/2+.85});block(g,w,h,d,material(colors[Math.floor(rnd()*colors.length)]),0,h/2,0);block(g,w+.3,.4,d+.3,roof,0,h+.2,0);for(let f=1.5;f<h;f+=3){block(g,w*.62,1,.08,glass,0,f,d/2+.05);block(g,w*.62,1,.08,glass,0,f,-d/2-.05)}}}
 
 const roadMark=material(0xe2ddc8),treeTrunk=material(0x60452f),treeLeaves=[material(0x315d3b),material(0x477448),material(0x64864a)];
-for(const p of grid)for(let t=-310;t<=310;t+=12){block(scene,.13,.025,5,roadMark,p,.1,t);block(scene,5,.025,.13,roadMark,t,.1,p);}
+for(const p of grid)for(let t=-310;t<=310;t+=28){block(scene,.13,.025,5,roadMark,p,.1,t);block(scene,5,.025,.13,roadMark,t,.1,p);}
 function addTree(x,z,scale=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(scale);scene.add(g);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.24,2.4,7),treeTrunk);trunk.position.y=1.2;g.add(trunk);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,1),treeLeaves[Math.floor(rnd()*treeLeaves.length)]);crown.position.y=3;crown.scale.set(1,1.15,.95);crown.castShadow=true;g.add(crown);const crown2=new THREE.Mesh(new THREE.IcosahedronGeometry(.7,1),treeLeaves[Math.floor(rnd()*treeLeaves.length)]);crown2.position.set(.55,3.4,.2);g.add(crown2);}
-for(const p of grid)for(let t=-245;t<=245;t+=70){if(Math.abs(p)<30&&Math.abs(t)<30)continue;for(const side of [-1,1]){if(rnd()>.28)addTree(p+side*12.5,t,.7+rnd()*.35);if(rnd()>.35)addTree(t,p+side*12.5,.7+rnd()*.35);}}
-const pedestrians=[];
+for(const p of grid)for(let t=-245;t<=245;t+=140){if(Math.abs(p)<30&&Math.abs(t)<30)continue;for(const side of [-1,1]){if(rnd()>.28)addTree(p+side*12.5,t,.7+rnd()*.35);if(rnd()>.35)addTree(t,p+side*12.5,.7+rnd()*.35);}}
+block(scene,48,.14,48,material(0x4d7949),35,.02,35);block(scene,3,.16,44,walk,35,.12,35);block(scene,44,.16,3,walk,35,.12,35);for(let i=0;i<28;i++){const petal=new THREE.Mesh(new THREE.SphereGeometry(.13,7,6),material([0xe8c85c,0xd9819a,0xe9e5d7][i%3]));petal.position.set(35+(rnd()-.5)*40,.22,35+(rnd()-.5)*40);scene.add(petal);}const pedestrians=[];
 function addPedestrian(x,z,phase){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);const skin=material(0xb98262),shirts=[material(0x34566e),material(0x76503e),material(0x46634b),material(0x5b5276)],pants=material(0x252b32);const body=new THREE.Mesh(new THREE.CapsuleGeometry(.25,.48,4,8),shirts[Math.floor(rnd()*shirts.length)]);body.position.y=1.2;g.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.19,14,12),skin);head.position.y=1.83;g.add(head);const legs=[];for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.09,.43,4,7),pants);leg.position.set(side*.13,.52,0);g.add(leg);legs.push(leg);}pedestrians.push({root:g,legs,phase,speed:.5+rnd()*.6,origin:new THREE.Vector3(x,0,z),radius:2+rnd()*4});}
 for(let i=0;i<18;i++){const a=rnd()*Math.PI*2,r=22+rnd()*120;addPedestrian(Math.cos(a)*r,Math.sin(a)*r,rnd()*6);}
 
@@ -63,8 +63,8 @@ window.addEventListener("blur",()=>keys.clear());
 document.addEventListener("keydown",e=>{
  if(e.repeat||!begun||inCar)return;
  if(e.code==="KeyC"){crouching=!crouching;const ok=character.triggerAction("crouch");toast(crouching?(ok?"در حال خم‌شدن":"این مدل انیمیشن خم‌شدن ندارد"):"ایستاده");}
- if(e.code==="KeyF"){toast(character.triggerAction("punch")?"انیمیشن مشت اجرا شد":"این مدل انیمیشن مشت ندارد");}
- if(e.code==="KeyR"){toast(character.triggerAction("shoot")?"انیمیشن سلاح اجرا شد":"کلیپ سلاح وجود ندارد؛ گیم‌پلی سلاح فعال نیست");}
+ if(e.code==="KeyF"){const ok=character.triggerAction("punch");if(ok)audio.action("punch");toast(ok?"انیمیشن مشت اجرا شد":"این مدل انیمیشن مشت ندارد");}
+ if(e.code==="KeyR"){const ok=character.triggerAction("shoot");if(ok)audio.action("shoot");toast(ok?"آماده‌سازی/شلیک نمایشی":"کلیپ سلاح وجود ندارد؛ گیم‌پلی سلاح فعال نیست");}
  if(e.code==="KeyT"){toast(character.triggerAction("interact")?"فعالیت شخصیت اجرا شد":"این مدل انیمیشن فعالیت ندارد");}
 });
 $("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="در حال دریافت شخصیت نمونه مجاز...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="شخصیت بارگذاری شد · "+names.length+" کلیپ: "+names.join(", ");toast("شخصیت نمونه بارگذاری شد");}catch(err){status.textContent="شخصیت نمونه در دسترس نیست: "+err.message;toast("بارگذاری شخصیت نمونه ناموفق بود");}});
