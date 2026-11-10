@@ -1,44 +1,59 @@
-# GAME GTA
+# GAME GTA — نسخه آزمایشی V1
 
-Single-player third-person 3D open-world browser game inspired by the classic GTA era. All game assets will be original or properly licensed.
+بازی سه‌بعدی تک‌نفره سوم‌شخص با شهر کوچک آزمایشی و کنترل صفحه‌کلید و ماوس.
 
-## Run on XAMPP
-1. Copy this folder into C:\xampp\htdocs\game_gta.
-2. Start Apache.
-3. Open http://localhost/game_gta/ in a desktop browser.
-4. Press Start game and click the game view to capture the mouse.
+## اجرای بازی روی سرور یا XAMPP
 
-Three.js currently loads from jsDelivr, so internet access is required. A local vendor copy will be added for offline hosting.
+1. پوشه پروژه را با نام `game_gta` داخل ریشه وب سرور قرار بده؛ برای XAMPP مسیر معمول `C:\\xampp\\htdocs\\game_gta` است.
+2. Apache را اجرا کن.
+3. در مرورگر دسکتاپ باز کن: `http://localhost/game_gta/`
+4. روی «شروع بازی» کلیک کن.
+5. برای چرخش دوربین، داخل صفحه بازی کلیک کن تا نشانگر ماوس قفل شود. با `Esc` قفل آزاد می‌شود و با کلیک دوباره فعال می‌شود.
 
-## Player character
-- After starting, use the Player Model panel to load the publisher-hosted CC0 sample (internet required), or select your own rigged .glb file.
-- Embedded animation clips are detected and mapped by their names. The sample includes Idle, Walk, Run, Death, Hit, Attack and Special; it does not include dedicated crouch, jump, firearm or vehicle-entry clips.
-- The sample is fetched from Gobkit at runtime and is not bundled in this repository.
+**نیازمندی مهم:** نسخه فعلی Three.js را از jsDelivr بارگذاری می‌کند؛ بنابراین برای اجرای فعلی، سرور/مرورگر باید به اینترنت دسترسی داشته باشد. این نسخه هنوز آفلاین کامل نیست. PHP فقط صفحه را سرو می‌کند و فعلاً پایگاه داده یا تنظیمات PHP خاصی لازم نیست.
 
-## Audio and player voice
-- Basic character event lines use Persian browser speech synthesis (`fa-IR`) when available. The actual voice depends on voices installed in the browser/operating system; a Persian voice is not guaranteed on every computer.
-- Custom recordings remain optional and are loaded locally for keys 1–4.
-- Use the Sound button to mute/unmute.
-- After starting, load recordings in the Player Voice panel for keys 1–4. Files are loaded locally in the browser session and are not uploaded to GitHub.
-- Licensed sample files can be loaded from `assets/audio/`; see `docs/ASSET_SOURCES.md`. Production-quality sound packs still need to be downloaded, licence-checked and added before calling the audio final.
+## کنترل‌ها
 
-## In-game guide
-- Press **راهنمای بازی ؟** after starting to open the control guide; close it with × or Esc.
-- The guide documents current keyboard actions, voice slots, model loading and incomplete features.
-- Update `docs/CONTROLS_FA.md` and the in-game guide whenever controls or gameplay actions change.
+- `W A S D`: حرکت؛ هنگام رانندگی گاز، دنده‌عقب و فرمان.
+- `Shift`: دویدن.
+- `Space`: پرش.
+- `C`: تغییر حالت خم‌شدن.
+- حرکت ماوس: چرخش دوربین؛ چرخ ماوس: زوم.
+- `E`: نزدیک خودرو سوار شو؛ داخل خودرو پیاده شو.
+- `F`: درخواست انیمیشن مشت، فقط در صورت وجود کلیپ مناسب.
+- `R`: درخواست انیمیشن سلاح؛ شلیک واقعی هنوز پیاده‌سازی نشده.
+- `T`: درخواست انیمیشن فعالیت ویژه، در صورت وجود کلیپ.
+- `1` تا `4`: پخش فایل‌های صوتی بارگذاری‌شده در پنل صدای شخصیت.
+- دکمه «صدا روشن/خاموش»: کنترل صدای بازی.
+- «راهنمای بازی»: نمایش دوباره راهنما در هر زمان پس از شروع.
 
-## Controls
-- W/A/S/D: move; while driving, accelerate/reverse/steer
-- Shift: sprint
-- Space: jump
-- C: toggle crouch state (animation depends on the loaded GLB)
-- F: request punch animation only; combat is not implemented
-- R: request weapon animation only; shooting is not implemented
-- T: request a special activity animation if the GLB contains one
-- E: enter/exit a nearby car
-- Mouse: rotate camera; mouse wheel: zoom
-- Esc: release pointer lock; click the game view to recapture it
-- 1–4: play recordings loaded in the Player Voice panel
-- Sound button: mute/unmute game audio
+## شخصیت
 
-This is the first playable foundation with procedural placeholder geometry, not a finished game. See docs/ROADMAP.md.
+- بازی با شخصیت هندسی آزمایشی اجرا می‌شود.
+- از پنل «مدل شخصیت» می‌توان فایل سازگار `.glb` را از رایانه بارگذاری کرد.
+- دکمه شخصیت نمونه، فایل را از منبع خارجی دریافت می‌کند و به اینترنت نیاز دارد؛ مدل نمونه داخل مخزن بسته‌بندی نشده است.
+- انیمیشن‌ها فقط در صورت وجود کلیپ سازگار داخل GLB اجرا می‌شوند؛ نام کلیپ‌ها و اسکلت مدل می‌تواند نتیجه را تغییر دهد.
+
+## صدا
+
+- صدای قدم‌ها و موتور فعلی ساده و تولیدشده با Web Audio هستند؛ این‌ها صدای نهایی باکیفیت یا ضبط میدانی محسوب نمی‌شوند.
+- گفتار رویدادهای پایه فقط در صورت نصب صدای فارسی در مرورگر/سیستم پخش می‌شود.
+- فایل‌های شخصی کلیدهای ۱ تا ۴ فقط در نشست فعلی مرورگر بارگذاری می‌شوند و به سرور ارسال نمی‌شوند.
+- برای صدای نهایی خودرو، محیط، درها و افکت‌ها هنوز باید فایل‌های دارای مجوز معتبر تهیه و به پروژه افزوده شوند.
+
+## محدودیت‌های شناخته‌شده V1
+
+- شهر کوچک و هندسه آن آزمایشی است.
+- فیزیک خودرو ساده است؛ برخورد با ساختمان‌ها در حرکت خودرو کنترل می‌شود، اما شبیه‌سازی فیزیکی کامل وجود ندارد.
+- مبارزه، آسیب، شلیک، مهمات، پلیس، ترافیک و مأموریت‌ها فعال نیستند.
+- تبدیل عکس به شخصیت سه‌بعدی هنوز وجود ندارد.
+- کیفیت و تعداد انیمیشن‌ها وابسته به GLB انتخابی است.
+- اجرای آفلاین کامل هنوز فراهم نشده است.
+
+## تست قبل از شروع
+
+راهنمای کامل تست سرور در `docs/TESTING_FA.md` قرار دارد. پس از هر تغییر در کنترل‌ها یا قابلیت‌ها، `docs/CONTROLS_FA.md` و راهنمای داخل بازی را هم‌زمان به‌روز کن.
+
+## بررسی خودکار
+
+GitHub Actions نحو فایل‌های JavaScript و آزمون‌های ایستای پروژه را اجرا می‌کند. موفقیت این آزمون‌ها جایگزین اجرای واقعی در مرورگر یا XAMPP نیست.
