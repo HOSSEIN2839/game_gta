@@ -61,7 +61,7 @@ document.addEventListener("keydown",e=>{
 $("#sampleModelBtn").addEventListener("click",async()=>{const status=$("#modelStatus");status.textContent="در حال دریافت شخصیت نمونه مجاز...";try{const names=await character.loadModel("https://gobkit.com/freebies/human015/OfficeWorker.glb");status.textContent="شخصیت بارگذاری شد · "+names.length+" کلیپ: "+names.join(", ");toast("شخصیت نمونه بارگذاری شد");}catch(err){status.textContent="شخصیت نمونه در دسترس نیست: "+err.message;toast("بارگذاری شخصیت نمونه ناموفق بود");}});
 $("#modelFile").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
- const status=$("#modelStatus");status.textContent="Loading character...";
+ const status=$("#modelStatus");status.textContent="در حال بارگذاری مدل...";
  try{const names=await character.loadModelFile(file);status.textContent="مدل بارگذاری شد · "+(names.length?names.length+" کلیپ: "+names.join(", "):"بدون انیمیشن داخلی");toast("مدل شخصیت بارگذاری شد");}
  catch(err){status.textContent="بارگذاری ناموفق: "+err.message;toast("بارگذاری مدل ناموفق بود");}
 });
