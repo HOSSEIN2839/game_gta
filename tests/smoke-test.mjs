@@ -43,7 +43,10 @@ assert.match(game, /block\(scene,1040,1,1040,grass/, "The world ground must cove
 assert.match(game, /s=\(keys\.has\("KeyD"\)\?1:0\)-\(keys\.has\("KeyA"\)\?1:0\)/, "D must steer right and A must steer left while driving");
 assert.match(game, /move\.add\(r\).*move\.sub\(r\)/, "D/A on-foot movement must preserve right/left direction");
 assert.match(game, /const pedestrians=\[\]/, "Pedestrian population must be present");
-assert.match(game, /for\(const npc of pedestrians\)/, "Pedestrians must be animated");\nassert.match(game, /for\(let i=0;i<64;i\+\+\)/, "The expanded pedestrian population must be present");\nassert.match(game, /windObjects/, "Wind animation must affect vegetation");\nassert.match(game, /KeyG/, "Nearby NPC conversation must be available");
+assert.match(game, /for\(const npc of pedestrians\)/, "Pedestrians must be animated");
+assert.match(game, /for\(let i=0;i<64;i\+\+\)/, "The expanded pedestrian population must be present");
+assert.match(game, /windObjects/, "Wind animation must affect vegetation");
+assert.match(game, /KeyG/, "Nearby NPC conversation must be available");
 assert.match(character, /this\.weapon=new THREE\.Group\(\)/, "A visible procedural weapon must be available");
 assert.match(character, /this\.proceduralActionTime/, "Procedural fallback actions must be animated");
 assert.match(character, /loadAnimationFile\(file\)/, "Separate animation upload must be available");
