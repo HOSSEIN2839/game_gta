@@ -14,7 +14,7 @@ const [html, game, character, audio, animationLibrary, css, controls] = await Pr
 assert.match(html, /<html lang="fa" dir="rtl">/, "The game shell must be Persian and RTL");
 assert.match(html, /id="world"/, "The render root must exist");
 assert.match(html, /id="startBtn"/, "The start button must exist");
-assert.match(html, /class="character-select-overlay"/, "Pre-game character selection must exist");
+assert.match(html, /class="overlay character-select-overlay"/, "Pre-game character selection must exist");
 for (const id of ["casual-female","formal-female","casual-male","suit-male","hoodie-male"]) assert.ok(html.includes('data-preset="'+id+'"'), "Missing preset option: "+id);
 assert.match(html, /id="characterStatus"/, "Character loading status must exist");
 assert.match(html, /id="modelFile"/, "Custom GLB upload must be available before starting");
