@@ -136,6 +136,12 @@ export class PlayerCharacter {
    }
    return;
   }
+  if(this.model){
+   if(this.proceduralActionTime>0)this.proceduralActionTime=Math.max(0,this.proceduralActionTime-dt);
+   else this.proceduralAction=null;
+   this.animateModelBones(dt,speed,crouching,air);
+   return;
+  }
   this.phase+=dt*(speed>7?13:speed>.1?8:2);
   if(this.proceduralActionTime>0){this.proceduralActionTime-=dt;const p=Math.max(0,this.proceduralActionTime);if(this.proceduralAction==="punch"){this.rightArm.rotation.x=-Math.sin((.72-p)*Math.PI/.72)*1.8;this.leftArm.rotation.x=.2;}else if(this.proceduralAction==="shoot"){this.rightArm.rotation.x=-.55;this.leftArm.rotation.x=-.25;}else if(this.proceduralAction==="interact"){this.rightArm.rotation.x=-1.2;}else if(this.proceduralAction==="enter"||this.proceduralAction==="exit"){this.rightArm.rotation.x=-.7;}if(this.proceduralActionTime<=0){this.proceduralAction=null;this.weapon.visible=false;this.rightArm.rotation.x=0;this.leftArm.rotation.x=0;}}
   else if(this.proceduralAction){this.proceduralAction=null;this.weapon.visible=false;}
@@ -157,6 +163,9 @@ export class PlayerCharacter {
    else if(/right.*(arm|shoulder)/.test(n))bone.rotation.x+=swing*.65;
    if(crouching&&/(upleg|thigh|leg)/.test(n))bone.rotation.x-=.35;
    if(air&&/(arm|shoulder)/.test(n))bone.rotation.x-=.35;
+   if(this.proceduralAction==="punch"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=1.25;
+   if(this.proceduralAction==="shoot"&&/(arm|shoulder)/.test(n))bone.rotation.x-=.45;
+   if(this.proceduralAction==="interact"&&/right.*(arm|shoulder)/.test(n))bone.rotation.x-=.9;
   }
   const hips=[...this.boneBases.keys()].find(b=>/hips|pelvis|root/i.test(b.name));
   if(hips){const base=this.boneBases.get(hips);hips.position.y=base.y+Math.sin(this.modelPhase*2)*(speed>.1?.025:.008)-(crouching?.08:0);}
