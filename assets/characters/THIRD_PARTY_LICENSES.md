@@ -15,6 +15,8 @@ Universal, with commercial use permitted and no attribution required.
 | HoodieMale.glb | Hoodie male | Animated Men Pack | CC0 1.0 |
 
 Creator: Quaternius — https://quaternius.com
+Animated Women Pack: https://quaternius.com/packs/animatedwomen.html
+Animated Men Pack: https://quaternius.com/packs/animatedmen.html
 Original source license: https://creativecommons.org/publicdomain/zero/1.0/
 Source license record: https://github.com/george11642/app-contest-sprint/blob/main/video-starter/LICENSES.md
 
