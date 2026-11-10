@@ -107,7 +107,6 @@ export class PlayerCharacter {
   if(!this.mixer) return false;
   let action=this.findAction(kind);
   if(!action && kind==="run") action=this.findAction("walk");
-  if(!action && kind==="walk") action=this.findAction("idle");
   if(!action) return false;
   if(action===this.activeAction && action.isRunning()) return true;
   action.reset().setLoop(THREE.LoopRepeat,Infinity).fadeIn(.18).play();
@@ -133,7 +132,7 @@ export class PlayerCharacter {
    }
    if(this.overrideRemaining<=0) {
     const desired=air?"jump":crouching?"crouch":speed>7?"run":speed>.1?"walk":"idle";
-    if(!this.playAction(desired)) this.animateModelBones(dt,speed,crouching,air);
+    if(!this.playAction(desired)) {if(this.activeAction){this.activeAction.fadeOut(.12);this.activeAction=null;}this.animateModelBones(dt,speed,crouching,air);}
    }
    return;
   }
