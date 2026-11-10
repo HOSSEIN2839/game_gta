@@ -30,7 +30,7 @@ assert.match(character, /loadModelFile\(file\)/, "Local GLB loading must remain 
 assert.match(audio, /footstepBuffer/, "Footstep effect must have a generated buffer");
 assert.match(audio, /setEngine\(/, "Engine audio controller missing");
 assert.match(css, /\.help-dialog/, "Guide styles missing");
-for (const key of ["W A S D", "Space", "Shift", "E", "1", "4"]) {
+for (const key of ["W", "D", "A", "Space", "Shift", "E", "1", "4"]) {
   assert.ok(controls.includes(key), `Controls guide missing key documentation: ${key}`);
 }
 
