@@ -19,7 +19,7 @@ const player=new THREE.Group();scene.add(player);const skin=material(0xc58d6b),s
 block(player,.8,1.05,.42,shirt,0,1.35,0);const head=new THREE.Mesh(new THREE.SphereGeometry(.29,18,14),skin);head.position.y=2.12;player.add(head);
 const legs=[block(player,.29,.85,.32,pants,-.22,.42,0),block(player,.29,.85,.32,pants,.22,.42,0)];
 const arms=[block(player,.23,.8,.26,skin,-.55,1.35,0),block(player,.23,.8,.26,skin,.55,1.35,0)];player.position.set(0,0,8);
-const car=new THREE.Group();scene.add(car);car.position.set(5,0,1);block(car,2.2,.75,4,material(0x9b3430),0,.85,0);block(car,1.6,.7,2,glass,0,1.55,-.15);
+const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);block(car,2.2,.75,4,material(0x9b3430),0,.85,0);block(car,1.6,.7,2,glass,0,1.55,-.15);
 for(const x of [-1.08,1.08])for(const z of [-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.22,16),material(0x17191b));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);car.add(w)}
 const keys=new Set();let begun=false,inCar=false,yaw=0,pitch=.2,dist=7.5,vy=0,toastTime=0;
 const clamp=THREE.MathUtils.clamp,clock=new THREE.Clock(),move=new THREE.Vector3(),camPos=new THREE.Vector3();
