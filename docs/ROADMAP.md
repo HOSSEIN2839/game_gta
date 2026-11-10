@@ -6,9 +6,12 @@
 - [x] Third-person mouse camera and wheel zoom
 - [x] Walk, sprint and jump
 - [x] Prototype enter/exit and driving
-- [x] GLB model loader, local model selection, skeleton/animation mixer integration (requires user-selected compatible GLB)\n- [ ] Bundle a distributable character model after asset licence verification
-- [x] Basic player-vs-building collision and jump input handling\n- [ ] Full capsule/physics collision and improved vehicle physics
-- [ ] Pause menu, sound and settings\n- [ ] Combat, vehicle-entry and activity clips validated against selected rig
+- [x] GLB model loader, local model selection, skeleton/animation mixer integration (requires user-selected compatible GLB)
+- [ ] Bundle a distributable character model after asset licence verification
+- [x] Basic player-vs-building collision and jump input handling
+- [ ] Full capsule/physics collision and improved vehicle physics
+- [ ] Pause menu, sound and settings
+- [ ] Combat, vehicle-entry and activity clips validated against selected rig
 
 ## Phase 2 — Gameplay
 - [ ] NPC pedestrians with idle, walk, flee and combat states
