@@ -55,6 +55,7 @@ async function chooseCharacter(id){
  }finally{if(serial===presetLoadSerial)document.querySelectorAll(".character-option").forEach(b=>b.disabled=false);}
 }
 document.querySelectorAll(".character-option").forEach(button=>button.addEventListener("click",()=>chooseCharacter(button.dataset.preset)));
+chooseCharacter("casual-female");
 
 const audio=new GameAudio();
 const car=new THREE.Group();scene.add(car);car.position.set(2,0,5);const carPaint=new THREE.MeshPhysicalMaterial({color:0x9b3430,metalness:.72,roughness:.24,clearcoat:.9,clearcoatRoughness:.12});block(car,2.2,.75,4,carPaint,0,.85,0);block(car,1.72,.72,2.05,new THREE.MeshPhysicalMaterial({color:0x426575,metalness:.2,roughness:.12,transparent:true,opacity:.72}),0,1.55,-.15);for(const sx of [-.78,.78]){block(car,.34,.16,.07,material(0xffe8b2),sx,1.02,2.02);block(car,.34,.16,.07,material(0x9d1f1f),sx,1.02,-2.02);}
