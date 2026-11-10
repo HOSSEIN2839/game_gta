@@ -2,22 +2,22 @@ import * as THREE from "three";
 import { PlayerCharacter } from "./character.js";
 import { GameAudio } from "./audio.js";
 const $=s=>document.querySelector(s), root=$("#world"), scene=new THREE.Scene();
-scene.background=new THREE.Color(0x9bb8c7);scene.fog=new THREE.Fog(0x9bb8c7,80,230);
-const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,500);
+scene.background=new THREE.Color(0x9bb8c7);scene.fog=new THREE.Fog(0x9bb8c7,170,620);
+const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,1200);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
-renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;root.appendChild(renderer.domElement);
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.85));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;root.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdcecff,0x58604a,2));
-const sun=new THREE.DirectionalLight(0xffedcf,2.3);sun.position.set(-40,70,35);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-115;sun.shadow.camera.right=115;sun.shadow.camera.top=115;sun.shadow.camera.bottom=-115;sun.shadow.bias=-0.00025;sun.shadow.normalBias=0.025;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xffedcf,2.3);sun.position.set(-90,120,65);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-340;sun.shadow.camera.right=340;sun.shadow.camera.top=340;sun.shadow.camera.bottom=-340;sun.shadow.bias=-0.00025;sun.shadow.normalBias=0.025;scene.add(sun);
 const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.88});
 function block(parent,w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 const grass=material(0x667d50),road=material(0x343a40),walk=material(0x999b91),glass=material(0x426575),roof=material(0x565b60);
-block(scene,230,1,230,grass,0,-.55,0);
-const grid=[-68,-34,0,34,68];
+block(scene,660,1,660,grass,0,-.55,0);
+const grid=[-280,-210,-140,-70,0,70,140,210,280];
 for(const p of grid){block(scene,13,.12,220,road,p,.02,0);block(scene,220,.12,13,road,0,.02,p);block(scene,17,.2,220,walk,p-17,.08,0);block(scene,17,.2,220,walk,p+17,.08,0);block(scene,220,.2,17,walk,0,.08,p-17);block(scene,220,.2,17,walk,0,.08,p+17)}
 let seed=19;const rnd=()=>((seed=seed*9301+49297)%233280)/233280;
 const colors=[0xc5b59d,0x9eaaa9,0xb7a18d,0x8e999b,0xd0c5ad,0x9c9b91];
 const buildingColliders=[];
-for(let ix=-2;ix<=2;ix++)for(let iz=-2;iz<=2;iz++){if(!ix&&!iz)continue;for(let n=0;n<3;n++){const w=8+rnd()*7,d=8+rnd()*7,h=8+rnd()*22,x=ix*34+(rnd()-.5)*12,z=iz*34+(rnd()-.5)*12,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);buildingColliders.push({minX:x-w/2-.85,maxX:x+w/2+.85,minZ:z-d/2-.85,maxZ:z+d/2+.85});block(g,w,h,d,material(colors[Math.floor(rnd()*colors.length)]),0,h/2,0);block(g,w+.3,.4,d+.3,roof,0,h+.2,0);for(let f=1.5;f<h;f+=3){block(g,w*.62,1,.08,glass,0,f,d/2+.05);block(g,w*.62,1,.08,glass,0,f,-d/2-.05)}}}
+for(let ix=-4;ix<4;ix++)for(let iz=-4;iz<4;iz++){if(!ix&&!iz)continue;for(let n=0;n<4;n++){const w=8+rnd()*7,d=8+rnd()*7,h=8+rnd()*22,x=ix*70+35+(rnd()-.5)*18,z=iz*70+35+(rnd()-.5)*18,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);buildingColliders.push({minX:x-w/2-.85,maxX:x+w/2+.85,minZ:z-d/2-.85,maxZ:z+d/2+.85});block(g,w,h,d,material(colors[Math.floor(rnd()*colors.length)]),0,h/2,0);block(g,w+.3,.4,d+.3,roof,0,h+.2,0);for(let f=1.5;f<h;f+=3){block(g,w*.62,1,.08,glass,0,f,d/2+.05);block(g,w*.62,1,.08,glass,0,f,-d/2-.05)}}}
 const character=new PlayerCharacter(scene),player=character.root;
 let crouching=false,transitioning=false;
 const audio=new GameAudio();
@@ -69,9 +69,9 @@ $("#audioToggle").addEventListener("click",()=>setSound(!soundEnabled));
 document.querySelectorAll("[data-voice]").forEach(input=>input.addEventListener("change",async()=>{const file=input.files?.[0];if(!file)return;try{await audio.loadVoice(input.dataset.voice,file);toast("صدای کلید "+input.dataset.voice+" بارگذاری شد");}catch(err){toast("بارگذاری فایل صدا ناموفق بود");}}));
 document.addEventListener("keydown",e=>{if(!e.repeat&&["Digit1","Digit2","Digit3","Digit4"].includes(e.code))audio.voice(e.code.slice(-1));});
 renderer.domElement.addEventListener("wheel",e=>dist=clamp(dist+Math.sign(e.deltaY)*.8,3.2,14),{passive:true});
-function update(dt){if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyA")?1:0)-(keys.has("KeyD")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);const nx=clamp(car.position.x+f.x*t*dt*15,-105,105),nz=clamp(car.position.z+f.z*t*dt*15,-105,105);if(!carCollidesAt(nx,nz))car.position.set(nx,0,nz);return}
+function update(dt){if(inCar){const f=new THREE.Vector3(Math.sin(car.rotation.y),0,Math.cos(car.rotation.y)),t=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0);car.rotation.y+=s*dt*(Math.abs(t)?1.5:.7);const nx=clamp(car.position.x+f.x*t*dt*15,-305,305),nz=clamp(car.position.z+f.z*t*dt*15,-305,305);if(!carCollidesAt(nx,nz))car.position.set(nx,0,nz);return}
 const f=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),r=new THREE.Vector3(f.z,0,-f.x);move.set(0,0,0);if(keys.has("KeyW"))move.add(f);if(keys.has("KeyS"))move.sub(f);if(keys.has("KeyD"))move.add(r);if(keys.has("KeyA"))move.sub(r);
 if(move.lengthSq()){move.normalize();const step=(crouching?2.2:(keys.has("ShiftLeft")?10:5.3))*dt, nx=player.position.x+move.x*step,nz=player.position.z+move.z*step;if(!collidesAt(nx,player.position.z))player.position.x=nx;if(!collidesAt(player.position.x,nz))player.position.z=nz;player.rotation.y=Math.atan2(move.x,move.z);}
-if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-108,108);player.position.z=clamp(player.position.z,-108,108);character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching)}
+if(jumpQueued&&player.position.y<=.001){vy=7;tone(330,.16,"sine",.09);}jumpQueued=false;vy-=19*dt;player.position.y=Math.max(0,player.position.y+vy*dt);if(!player.position.y)vy=0;player.position.x=clamp(player.position.x,-310,310);player.position.z=clamp(player.position.z,-310,310);character.update(dt,move.lengthSq()?(crouching?2.2:(keys.has("ShiftLeft")?10:5.3)):0,player.position.y>.02,crouching)}
 function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.04);if(begun){update(dt);updateAudio();const target=inCar?car.position:player.position,h=inCar?1.4:1.55,hor=Math.cos(pitch)*dist;camPos.set(target.x-Math.sin(yaw)*hor,target.y+h+Math.sin(pitch)*dist+1,target.z-Math.cos(yaw)*hor);camera.position.lerp(camPos,1-Math.exp(-dt*8));camera.lookAt(target.x,target.y+h,target.z);$("#prompt").classList.toggle("hidden",inCar||!nearCar());if(toastTime>0&&(toastTime-=dt)<=0)$("#toast").style.opacity=0}else{camera.position.set(22,19,28);camera.lookAt(0,0,0)}renderer.render(scene,camera)}
 loop();addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6))});
