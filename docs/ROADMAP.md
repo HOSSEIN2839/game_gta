@@ -9,7 +9,9 @@
 - [x] Third-person mouse camera and wheel zoom
 - [x] Walk, sprint and jump
 - [x] Prototype enter/exit and driving
-- [x] GLB model loader, local model selection, skeleton/animation mixer integration (requires user-selected compatible GLB)
+- [x] GLB model loader and local model selection
+- [x] Shared rig-adaptive procedural animation clips for common humanoid actions
+- [ ] Bundle and validate licensed motion-capture animation assets; add robust retargeting across varied humanoid rigs
 - [ ] Bundle a distributable character model after asset licence verification
 - [x] Basic player-vs-building collision and jump input handling
 - [x] Basic vehicle-vs-building blocking (prototype collision)
